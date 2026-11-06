@@ -2,7 +2,7 @@ package com.navod718.healthmate
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,14 +21,17 @@ import org.junit.runner.RunWith
 class HealthMateUiTest {
     @get:Rule val compose = createComposeRule()
     private lateinit var database: HealthDatabase
+    private lateinit var model: HealthViewModel
+    private val store = ViewModelStore()
     @Before fun setup() {
         database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), HealthDatabase::class.java).build()
+        model = HealthViewModel(HealthRepository(database.records()))
+        store.put("health", model)
         compose.setContent {
-            val model = remember { HealthViewModel(HealthRepository(database.records())) }
             HealthMateTheme { HealthMateApp(model) }
         }
     }
-    @After fun close() { database.close() }
+    @After fun close() { store.clear(); database.close() }
     @Test fun addFormValidatesThenPersistsAndDisplaysRecord() {
         compose.onNodeWithText("Add record").performClick()
         compose.onNodeWithText("Save record").performScrollTo().performClick()
@@ -38,6 +41,15 @@ class HealthMateUiTest {
         compose.onNodeWithText("Water intake").performScrollTo().performTextInput("500")
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.waitUntil(10_000) { runBlocking { database.records().observeTotals(LocalDate.now().toString()).first().water == 500L } }
-        compose.onNodeWithText("500 ml").assertIsDisplayed()
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("500 ml").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("500 ml").performScrollTo().assertIsDisplayed()
+    }
+    @Test fun backFromFormDoesNotSaveAndEmptyDashboardShowsZero() {
+        compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Add record").performClick()
+        compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("500")
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("0 steps").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
     }
 }

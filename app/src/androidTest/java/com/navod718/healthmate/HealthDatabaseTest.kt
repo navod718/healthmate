@@ -1,5 +1,7 @@
 package com.navod718.healthmate
 
+import android.content.Context
+import java.util.UUID
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,5 +33,16 @@ class HealthDatabaseTest {
         dao.insert(record)
         dao.insert(record)
         assertEquals(Int.MAX_VALUE.toLong() * 2, dao.observeTotals(record.date).first().steps)
+    }
+    @Test fun savedValuesSurviveDatabaseReopen() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val name = "healthmate-test-${UUID.randomUUID()}.db"
+        var persistent = Room.databaseBuilder(context, HealthDatabase::class.java, name).build()
+        try {
+            persistent.records().insert(HealthRecord(date = "2026-11-06", steps = 1200, calories = 60, water = 500))
+            persistent.close()
+            persistent = Room.databaseBuilder(context, HealthDatabase::class.java, name).build()
+            assertEquals(DailyTotals(1200, 60, 500), persistent.records().observeTotals("2026-11-06").first())
+        } finally { persistent.close(); context.deleteDatabase(name) }
     }
 }
