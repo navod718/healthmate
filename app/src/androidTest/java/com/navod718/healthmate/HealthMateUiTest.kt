@@ -33,7 +33,7 @@ class HealthMateUiTest {
     }
     @After fun close() { store.clear(); database.close() }
     @Test fun addFormValidatesThenPersistsAndDisplaysRecord() {
-        compose.onNodeWithText("Add record").performClick()
+        compose.onNodeWithText("Add record", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.onAllNodesWithText("This field is required.").assertCountEquals(3)
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("1200")
@@ -47,7 +47,7 @@ class HealthMateUiTest {
     @Test fun backFromFormDoesNotSaveAndEmptyDashboardShowsZero() {
         compose.waitUntil(10_000) { compose.onAllNodesWithText("0 ml").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Add record").performClick()
+        compose.onNodeWithText("Add record", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("500")
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithText("0 steps").performScrollTo().assertIsDisplayed()
