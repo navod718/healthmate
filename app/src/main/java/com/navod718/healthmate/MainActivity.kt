@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.navod718.healthmate.feature.health.presentation.HealthMateApp
@@ -19,8 +21,8 @@ class MainActivity : ComponentActivity() {
             HealthMateTheme {
                 val model: HealthViewModel = viewModel(factory = object : ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                        HealthViewModel((application as HealthMateApplication).repository) as T
+                    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
+                        HealthViewModel((application as HealthMateApplication).repository, extras.createSavedStateHandle()) as T
                 })
                 HealthMateApp(model)
             }

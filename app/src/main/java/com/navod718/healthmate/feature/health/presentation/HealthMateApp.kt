@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,6 +23,9 @@ fun HealthMateApp(model: HealthViewModel) {
     val editor by model.editor.collectAsStateWithLifecycle()
     val busy by model.busy.collectAsStateWithLifecycle()
     val message by model.message.collectAsStateWithLifecycle()
+    val goals by model.goals.collectAsStateWithLifecycle()
+    val goalsOpen by model.goalsOpen.collectAsStateWithLifecycle()
+    val discardPrompt by model.discardPrompt.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {
@@ -45,6 +49,10 @@ fun HealthMateApp(model: HealthViewModel) {
                     if (editor.open) IconButton(onClick = model::closeEditor, enabled = !busy) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
+                }, actions = {
+                    if (!editor.open) IconButton(onClick = model::openGoals, enabled = !busy) {
+                        Icon(Icons.Default.Flag, "Daily goals")
+                    }
                 })
         },
         floatingActionButton = {
@@ -54,6 +62,14 @@ fun HealthMateApp(model: HealthViewModel) {
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         if (editor.open) RecordForm(editor, busy, model::change, model::save, Modifier.padding(padding))
-        else DashboardScreen(today, totals, model::retry, Modifier.padding(padding))
+        else DashboardScreen(today, totals, model::retry, goals, Modifier.padding(padding))
     }
+    if (discardPrompt) AlertDialog(
+        onDismissRequest = model::keepEditing,
+        title = { Text("Discard this record?") },
+        text = { Text("Your unsaved changes will be lost.") },
+        confirmButton = { TextButton(onClick = model::discard) { Text("Discard") } },
+        dismissButton = { TextButton(onClick = model::keepEditing) { Text("Keep editing") } },
+    )
+    if (goalsOpen) GoalsDialog(goals, busy, model::closeGoals, model::saveGoals)
 }

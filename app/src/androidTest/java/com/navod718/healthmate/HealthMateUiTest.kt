@@ -37,8 +37,12 @@ class HealthMateUiTest {
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.onAllNodesWithText("This field is required.").assertCountEquals(3)
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("1200")
-        compose.onNodeWithText("Calories burned").performScrollTo().performTextInput("60")
-        compose.onNodeWithText("Water intake").performScrollTo().performTextInput("500")
+        compose.onNodeWithText("Steps walked").performImeAction()
+        compose.onNodeWithText("Calories burned").assertIsFocused().performTextInput("60")
+        compose.onNodeWithText("Calories burned").performImeAction()
+        compose.onNodeWithText("Water intake").assertIsFocused().performTextInput("500")
+        compose.onNodeWithText("Water intake").performImeAction()
+        compose.onNodeWithText("Water intake").assertIsNotFocused()
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.waitUntil(10_000) { runBlocking { database.records().observeTotals(LocalDate.now().toString()).first().water == 500L } }
         compose.waitUntil(10_000) { compose.onAllNodesWithText("500 ml").fetchSemanticsNodes().isNotEmpty() }
@@ -50,7 +54,21 @@ class HealthMateUiTest {
         compose.onNodeWithText("Add record", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("500")
         compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("Keep editing").performClick()
+        compose.onNodeWithText("500", useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("Discard", useUnmergedTree = true).performClick()
         compose.onNodeWithText("0 steps").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
+    }
+    @Test fun goalsCanBeChangedAndProgressReflectsNewTarget() {
+        compose.onNodeWithContentDescription("Daily goals").performClick()
+        compose.onNodeWithText("Water goal (ml)").performScrollTo().performTextReplacement("0")
+        compose.onNodeWithText("Save goals", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("Each goal must be a positive whole number up to 2,147,483,647.").assertExists()
+        compose.onNodeWithText("Water goal (ml)").performScrollTo().performTextReplacement("1000")
+        compose.onNodeWithText("Save goals", useUnmergedTree = true).performClick()
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("0% of 1,000 ml goal").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("0% of 1,000 ml goal").performScrollTo().assertIsDisplayed()
     }
 }

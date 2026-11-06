@@ -45,4 +45,26 @@ class HealthDatabaseTest {
             assertEquals(DailyTotals(1200, 60, 500), persistent.records().observeTotals("2026-11-06").first())
         } finally { persistent.close(); context.deleteDatabase(name) }
     }
+    @Test fun goalsMigrationKeepsExistingRecordsAndPersistsTargets() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val name = "healthmate-migration-${UUID.randomUUID()}.db"
+        context.openOrCreateDatabase(name, Context.MODE_PRIVATE, null).use { old ->
+            old.execSQL("CREATE TABLE health_records (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT NOT NULL, steps INTEGER NOT NULL, calories INTEGER NOT NULL, water INTEGER NOT NULL)")
+            old.execSQL("CREATE INDEX index_health_records_date ON health_records(date)")
+            old.execSQL("INSERT INTO health_records(date,steps,calories,water) VALUES ('2026-11-06',1200,60,500)")
+            old.version = 1
+        }
+        fun open() = Room.databaseBuilder(context, HealthDatabase::class.java, name).addMigrations(HealthDatabase.MIGRATION_1_2).build()
+        var migrated = open()
+        try {
+            assertEquals(DailyTotals(1200,60,500), migrated.records().observeTotals("2026-11-06").first())
+            assertNull(migrated.records().observeGoals().first())
+            val goals = DailyGoals(steps = 6000, calories = 300, water = 1500)
+            migrated.records().saveGoals(goals)
+            migrated.close()
+            migrated = open()
+            assertEquals(goals, migrated.records().observeGoals().first())
+            assertEquals(DailyTotals(1200,60,500), migrated.records().observeTotals("2026-11-06").first())
+        } finally { migrated.close(); context.deleteDatabase(name) }
+    }
 }
