@@ -45,6 +45,7 @@ class HealthMateUiTest {
         compose.onNodeWithText("500 ml").performScrollTo().assertIsDisplayed()
     }
     @Test fun backFromFormDoesNotSaveAndEmptyDashboardShowsZero() {
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("0 ml").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Add record").performClick()
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("500")
