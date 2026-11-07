@@ -20,6 +20,12 @@ class DraftAndGoalsTest {
         override fun observeGoals(): Flow<DailyGoals?> = flowOf(null)
         override suspend fun saveGoals(goals: DailyGoals) = Unit
         override suspend fun insert(record: HealthRecord) = 1L
+        override fun observeRecords(date: String?): Flow<List<HealthRecord>> = flowOf(emptyList())
+        override fun observeCount() = flowOf(0)
+        override suspend fun count() = 0
+        override suspend fun find(id: Long): HealthRecord? = null
+        override suspend fun update(record: HealthRecord) = 0
+        override suspend fun delete(id: Long) = 0
     }
     @Before fun setup() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun close() { store.clear(); Dispatchers.resetMain() }
