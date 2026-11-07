@@ -13,6 +13,9 @@ interface HealthRecordDao {
     @Query("SELECT COALESCE(SUM(steps), 0) AS steps, COALESCE(SUM(calories), 0) AS calories, COALESCE(SUM(water), 0) AS water FROM health_records WHERE date = :date")
     fun observeTotals(date: String): Flow<DailyTotals>
 
+    @Query("SELECT date, SUM(steps) AS steps, SUM(calories) AS calories, SUM(water) AS water FROM health_records WHERE date >= :start AND date <= :end GROUP BY date ORDER BY date ASC")
+    fun observeDailyActivity(start: String, end: String): Flow<List<DailyActivity>>
+
     @Query("SELECT * FROM daily_goals WHERE id = 1")
     fun observeGoals(): Flow<DailyGoals?>
 

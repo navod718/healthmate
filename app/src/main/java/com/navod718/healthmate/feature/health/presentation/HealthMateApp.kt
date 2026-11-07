@@ -22,6 +22,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun HealthMateApp(model: HealthViewModel) {
     val totals by model.totals.collectAsStateWithLifecycle()
+    val week by model.week.collectAsStateWithLifecycle()
     val today by model.today.collectAsStateWithLifecycle()
     val editor by model.editor.collectAsStateWithLifecycle()
     val busy by model.busy.collectAsStateWithLifecycle()
@@ -81,7 +82,7 @@ fun HealthMateApp(model: HealthViewModel) {
     ) { padding ->
         if (editor.open) RecordForm(editor, busy, model::change, model::save, Modifier.padding(padding))
         else if (tab == "records") RecordsScreen(records, filter, busy, model::filterByDate, model::edit, model::requestDelete, model::openSamples, model::retry, Modifier.padding(padding))
-        else DashboardScreen(today, totals, model::retry, goals, Modifier.padding(padding))
+        else DashboardScreen(today, totals, model::retry, goals, week, busy, model::quickWater, Modifier.padding(padding))
     }
     if (discardPrompt) AlertDialog(
         onDismissRequest = model::keepEditing,
