@@ -160,7 +160,12 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     fun refreshToday() { _today.value = LocalDate.now().toString() }
     fun retry() { retry.value++ }
     fun clearMessage() { _message.value = null }
-    fun add() { if (!_busy.value) setEditor(EditorState(open = true)) }
+    fun add() {
+        if (!_busy.value) {
+            val date = if (_tab.value == "records") _filter.value ?: LocalDate.now().toString() else LocalDate.now().toString()
+            setEditor(EditorState(open = true, input = RecordInput(date = date)))
+        }
+    }
     fun closeEditor() {
         if (_busy.value) return
         if (!_editor.value.loading && _editor.value.input != _editor.value.original) _discardPrompt.value = true
@@ -200,7 +205,8 @@ class HealthViewModel(private val repository: HealthRepository, private val save
                     return@launch
                 }
                 setEditor(EditorState())
-                _message.value = if (state.id == null) "Record saved." else "Record updated."
+                val message = if (state.id == null) "Record saved." else "Record updated."
+                _message.value = message + if (_tab.value == "records" && _filter.value != null && _filter.value != state.input.date) " Clear the date filter to see it." else ""
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _message.value = "Could not save. Your inputs are kept; please try again."
