@@ -17,6 +17,7 @@ class DraftAndGoalsTest {
     private var count = 0
     private val dao = object : HealthRecordDao {
         override fun observeTotals(date: String) = flowOf(DailyTotals())
+        override fun observeDailyActivity(start: String, end: String): Flow<List<DailyActivity>> = flowOf(emptyList())
         override fun observeGoals(): Flow<DailyGoals?> = flowOf(null)
         override suspend fun saveGoals(goals: DailyGoals) = Unit
         override suspend fun insert(record: HealthRecord) = 1L
