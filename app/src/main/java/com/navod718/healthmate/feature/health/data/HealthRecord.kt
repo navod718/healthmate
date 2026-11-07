@@ -14,3 +14,6 @@ data class HealthRecord(
 )
 
 data class DailyTotals(val steps: Long = 0, val calories: Long = 0, val water: Long = 0)
+
+// A query result, not an additional database table.
+data class DailyActivity(val date: String, val steps: Long = 0, val calories: Long = 0, val water: Long = 0)

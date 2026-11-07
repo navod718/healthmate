@@ -5,6 +5,8 @@ Native Android personal health tracker built with **Kotlin, Jetpack Compose and 
 ## Features
 
 - **Dashboard:** reactive totals for today's steps, calories and water, plus editable daily goals and progress bars.
+- **7-day trends:** selectable Steps/Calories/Water bar chart for today and the previous six days, including zero-entry days. Tap a day for exact totals. Trends refresh after Add/Edit/Delete and include quick-water entries.
+- **Quick water:** +250 ml / +500 ml buttons save separate water-only records for today, with duplicate taps blocked while a write is pending. Manage these entries in Records.
 - **Add Record:** date selection, numeric validation, Next/Done keyboard actions, Room saving and useful errors.
 - **Records:** newest-first history, exact-date filtering, clear filter, loading/error/empty states. Adding from filtered history defaults to the selected date.
 - **Edit:** prefilled shared form, validation, saved edit drafts and updates that keep the original id.
@@ -41,6 +43,8 @@ Compose screens -> HealthViewModel -> HealthRepository -> HealthRecordDao -> Roo
 - `feature/health/data`: records, goals, repository and parameterized DAO operations.
 - `feature/health/presentation`: Dashboard, shared Add/Edit form, Records screen, goals dialog and state management.
 - `ui/theme`: shared Material 3 theme.
+
+Weekly trends use a bounded, grouped Room query and fill missing calendar dates with zero totals; the chart provides full date/value accessibility labels and horizontal scrolling on narrow displays. These additions require no schema changes.
 
 The `health_records` schema remains `id` (Long primary key), `date` (YYYY-MM-DD text), `steps`, `calories`, `water` (Int). History orders by date descending, then id descending. Editing changes the existing row; a missing row is reported instead of inserting a replacement. Totals update reactively, including when an edit moves a record to another date.
 

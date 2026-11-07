@@ -8,6 +8,22 @@ import com.navod718.healthmate.core.validation.RecordValidator
 class HealthRepository(private val dao: HealthRecordDao) {
     fun observeTotals(date: String) = dao.observeTotals(date)
 
+    fun observeWeek(end: String): kotlinx.coroutines.flow.Flow<List<DailyActivity>> {
+        val last = LocalDate.parse(end)
+        val first = last.minusDays(6)
+        return dao.observeDailyActivity(first.toString(), end).map { rows ->
+            val byDate = rows.associateBy { it.date }
+            (0L..6L).map { offset ->
+                val date = first.plusDays(offset).toString()
+                byDate[date] ?: DailyActivity(date)
+            }
+        }
+    }
+    suspend fun addWater(amount: Int) {
+        require(amount == 250 || amount == 500) { "Choose 250 ml or 500 ml." }
+        add(RecordInput(date = LocalDate.now().toString(), steps = "0", calories = "0", water = amount.toString()))
+    }
+
     fun observeGoals() = dao.observeGoals().map { it ?: DailyGoals() }
     suspend fun saveGoals(goals: DailyGoals) {
         require(goals.isValid()) { "Goals must be positive whole numbers." }

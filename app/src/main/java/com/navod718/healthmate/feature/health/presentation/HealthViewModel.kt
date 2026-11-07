@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+data class WeekState(val loading: Boolean = true, val days: List<DailyActivity> = emptyList(), val error: String? = null)
 data class RecordsState(val loading: Boolean = true, val records: List<HealthRecord> = emptyList(), val totalCount: Int = 0, val error: String? = null)
 data class TotalsState(val loading: Boolean = true, val totals: DailyTotals = DailyTotals(), val error: String? = null)
 data class EditorState(
@@ -156,6 +157,27 @@ class HealthViewModel(private val repository: HealthRepository, private val save
             .onStart { emit(TotalsState()) }
             .catch { if (it is CancellationException) throw it; emit(TotalsState(loading = false, error = "Could not load today's totals. Please retry.")) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState())
+
+    val week = combine(_today, retry) { date, _ -> date }.flatMapLatest { end ->
+        repository.observeWeek(end).map { WeekState(loading = false, days = it) }
+            .onStart { emit(WeekState()) }
+            .catch { if (it is CancellationException) throw it; emit(WeekState(loading = false, error = "Could not load weekly trends. Please retry.")) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WeekState())
+
+    fun quickWater(amount: Int) {
+        if (_busy.value || _editor.value.open || amount !in listOf(250, 500)) return
+        _busy.value = true
+        viewModelScope.launch {
+            try {
+                repository.addWater(amount)
+                refreshToday()
+                _message.value = "$amount ml water added for today."
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _message.value = "Could not log water. Please try again."
+            } finally { _busy.value = false }
+        }
+    }
 
     fun refreshToday() { _today.value = LocalDate.now().toString() }
     fun retry() { retry.value++ }

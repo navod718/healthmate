@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -34,8 +35,9 @@ import java.time.format.FormatStyle
 internal fun displayDate(date: String): String = LocalDate.parse(date).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
 private fun number(value: Long) = NumberFormat.getIntegerInstance().format(value)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DashboardScreen(today: String, state: TotalsState, retry: () -> Unit, goals: DailyGoals = DailyGoals(), modifier: Modifier = Modifier) {
+fun DashboardScreen(today: String, state: TotalsState, retry: () -> Unit, goals: DailyGoals = DailyGoals(), week: WeekState = WeekState(), busy: Boolean = false, onWater: (Int) -> Unit = {}, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Your day, at a glance", style = MaterialTheme.typography.headlineMedium)
         Text(displayDate(today), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
@@ -48,10 +50,22 @@ fun DashboardScreen(today: String, state: TotalsState, retry: () -> Unit, goals:
                 MetricCard("Steps walked", state.totals.steps, goals.steps, "steps", Icons.AutoMirrored.Filled.DirectionsWalk, Color(0xFF257449))
                 MetricCard("Calories burned", state.totals.calories, goals.calories, "kcal", Icons.Default.LocalFireDepartment, Color(0xFFAE4C27))
                 MetricCard("Water intake", state.totals.water, goals.water, "ml", Icons.Default.WaterDrop, Color(0xFF176CB0))
+                Text("Quick water entry", style = MaterialTheme.typography.titleMedium)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(250, 500).forEach { amount ->
+                        FilledTonalButton(enabled = !busy, onClick = { onWater(amount) }, modifier = Modifier.testTag("water-$amount")) {
+                            Icon(Icons.Default.WaterDrop, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("+$amount ml")
+                        }
+                    }
+                }
+                Text("Each tap saves water for today. You can edit or delete the entry in Records.", style = MaterialTheme.typography.bodySmall)
                 Text("Totals include all records you log for today. Add an entry after a walk, workout or water break.", style = MaterialTheme.typography.bodyMedium)
                 Text("Your records stay on this device.", style = MaterialTheme.typography.labelLarge)
             }
         }
+        WeeklyTrends(week, retry)
         Spacer(Modifier.height(88.dp))
     }
 }

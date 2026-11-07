@@ -23,6 +23,7 @@ class RecordsViewModelTest {
         var deletes = 0
         var failDelete = false
         override fun observeTotals(date: String) = entry.map { if (it?.date == date) DailyTotals(it.steps.toLong(), it.calories.toLong(), it.water.toLong()) else DailyTotals() }
+        override fun observeDailyActivity(start: String, end: String): Flow<List<DailyActivity>> = flowOf(emptyList())
         override fun observeGoals(): Flow<DailyGoals?> = flowOf(null)
         override suspend fun saveGoals(goals: DailyGoals) = Unit
         override suspend fun insert(record: HealthRecord): Long { inserts++; return 8L }
