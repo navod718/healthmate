@@ -75,6 +75,10 @@ private fun MetricCard(title: String, value: Long, goal: Int, unit: String, icon
 
 @Composable
 fun RecordForm(state: EditorState, busy: Boolean, onChange: (RecordInput) -> Unit, onSave: () -> Unit, modifier: Modifier = Modifier) {
+    if (state.loading) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        return
+    }
     val context = LocalContext.current
     val input = state.input
     val focus = LocalFocusManager.current
@@ -83,7 +87,7 @@ fun RecordForm(state: EditorState, busy: Boolean, onChange: (RecordInput) -> Uni
     val waterFocus = remember { FocusRequester() }
     val save = { focus.clearFocus(); keyboard?.hide(); onSave() }
     Column(modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Log a healthy moment", style = MaterialTheme.typography.headlineMedium)
+        Text(if (state.id == null) "Log a healthy moment" else "Update your activity", style = MaterialTheme.typography.headlineMedium)
         Text("Log an activity or your full day. Multiple entries on the same date are added together.")
         OutlinedButton(enabled = !busy, onClick = { pickDate(context, input.date) { onChange(input.copy(date = it)) } }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Default.CalendarMonth, null)
@@ -98,7 +102,7 @@ fun RecordForm(state: EditorState, busy: Boolean, onChange: (RecordInput) -> Uni
         Text("Use whole numbers. Enter 0 for activities you are not logging.", style = MaterialTheme.typography.bodySmall)
         Button(enabled = !busy, onClick = save, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
             if (busy) { CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-            Text(if (busy) "Saving…" else "Save record")
+            Text(if (busy) "Saving…" else if (state.id == null) "Save record" else "Save changes")
         }
     }
 }
@@ -118,7 +122,7 @@ private fun ErrorPanel(message: String, retry: () -> Unit) {
     }
 }
 
-private fun pickDate(context: android.content.Context, current: String, onDate: (String) -> Unit) {
+internal fun pickDate(context: android.content.Context, current: String, onDate: (String) -> Unit) {
     val date = runCatching { LocalDate.parse(current) }.getOrDefault(LocalDate.now())
     DatePickerDialog(context, { _, year, month, day -> onDate(LocalDate.of(year, month + 1, day).toString()) }, date.year, date.monthValue - 1, date.dayOfMonth).apply {
         datePicker.maxDate = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
