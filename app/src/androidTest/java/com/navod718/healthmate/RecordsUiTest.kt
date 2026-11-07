@@ -68,7 +68,7 @@ class RecordsUiTest {
         assertEquals(1, runBlocking { db.records().count() })
         compose.onNodeWithTag("delete-$id").performScrollTo().performClick()
         compose.onNodeWithText("Delete record", useUnmergedTree = true).performClick()
-        compose.waitUntil(10_000) { model.records.value.totalCount == 0 && !model.records.value.loading }
+        compose.waitUntil(10_000) { model.records.value.totalCount == 0 && model.records.value.records.isEmpty() && !model.records.value.loading && model.deleteTarget.value == null }
         compose.onNodeWithText("No records yet").assertExists()
         compose.onNodeWithText("Dashboard").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText("0 ml").fetchSemanticsNodes().isNotEmpty() }

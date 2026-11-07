@@ -6,7 +6,7 @@ Native Android personal health tracker built with **Kotlin, Jetpack Compose and 
 
 - **Dashboard:** reactive totals for today's steps, calories and water, plus editable daily goals and progress bars.
 - **Add Record:** date selection, numeric validation, Next/Done keyboard actions, Room saving and useful errors.
-- **Records:** newest-first history, exact-date filtering, clear filter, loading/error/empty states.
+- **Records:** newest-first history, exact-date filtering, clear filter, loading/error/empty states. Adding from filtered history defaults to the selected date.
 - **Edit:** prefilled shared form, validation, saved edit drafts and updates that keep the original id.
 - **Delete:** explicit confirmation, cancel, retry on failure and immediate dashboard refresh.
 - **Sample records:** a confirmation adds four examples for today and the previous three days, only when no records exist. A Room transaction prevents concurrent loads from creating duplicates. Samples are editable/deletable like other records; they are never loaded automatically.
