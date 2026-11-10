@@ -12,8 +12,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-data class RecordsState(val loading: Boolean = true, val records: List<HealthRecord> = emptyList(), val totalCount: Int = 0, val error: String? = null)
-data class TotalsState(val loading: Boolean = true, val totals: DailyTotals = DailyTotals(), val error: String? = null)
+data class RecordsState(val date: String?, val loading: Boolean = true, val records: List<HealthRecord> = emptyList(), val totalCount: Int = 0, val error: String? = null)
+data class TotalsState(val date: String, val loading: Boolean = true, val totals: DailyTotals = DailyTotals(), val error: String? = null)
+data class GoalsState(val value: DailyGoals = DailyGoals(), val loadFailed: Boolean = false)
 data class EditorState(
     val open: Boolean = false,
     val input: RecordInput = RecordInput(), val original: RecordInput = input, val errors: Map<String, String> = emptyMap(),
@@ -31,11 +32,19 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     val discardPrompt = _discardPrompt.asStateFlow()
     private val _goalsOpen = MutableStateFlow(false)
     val goalsOpen = _goalsOpen.asStateFlow()
-    val goals = repository.observeGoals().catch {
-        if (it is CancellationException) throw it
-        _message.value = "Could not load goals. Showing default targets."
-        emit(DailyGoals())
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DailyGoals())
+    private val goalsRefresh = MutableStateFlow(0)
+    private var lastKnownGoals = DailyGoals()
+    val goals = goalsRefresh.flatMapLatest {
+        repository.observeGoals()
+            .map {
+                lastKnownGoals = it
+                GoalsState(it)
+            }
+            .catch {
+                if (it is CancellationException) throw it
+                emit(GoalsState(lastKnownGoals, loadFailed = true))
+            }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GoalsState())
 
     private fun restoreEditor(): EditorState {
         if (savedState.get<Boolean>("open") != true) return EditorState()
@@ -74,10 +83,10 @@ class HealthViewModel(private val repository: HealthRepository, private val save
 
     val records = combine(_filter, retry) { date, _ -> date }.flatMapLatest { date ->
         combine(repository.observeRecords(date), repository.observeCount()) { entries, count ->
-            RecordsState(loading = false, records = entries, totalCount = count)
-        }.onStart { emit(RecordsState()) }
-            .catch { if (it is CancellationException) throw it; emit(RecordsState(loading = false, error = "Could not load records. Please retry.")) }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecordsState())
+            RecordsState(date, loading = false, records = entries, totalCount = count)
+        }.onStart { emit(RecordsState(date)) }
+            .catch { if (it is CancellationException) throw it; emit(RecordsState(date, loading = false, error = "Could not load records. Please retry.")) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecordsState(_filter.value))
 
     init { if (_editor.value.loading) _editor.value.id?.let(::loadEdit) }
 
@@ -152,16 +161,17 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     }
 
     val totals = combine(_today, retry) { date, _ -> date }.flatMapLatest { date ->
-        repository.observeTotals(date).map { TotalsState(loading = false, totals = it) }
-            .onStart { emit(TotalsState()) }
-            .catch { if (it is CancellationException) throw it; emit(TotalsState(loading = false, error = "Could not load today's totals. Please retry.")) }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState())
+        repository.observeTotals(date).map { TotalsState(date, loading = false, totals = it) }
+            .onStart { emit(TotalsState(date)) }
+            .catch { if (it is CancellationException) throw it; emit(TotalsState(date, loading = false, error = "Could not load today's totals. Please retry.")) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState(_today.value))
 
     fun refreshToday() { _today.value = LocalDate.now().toString() }
     fun retry() { retry.value++ }
+    fun retryGoals() { goalsRefresh.value++ }
     fun clearMessage() { _message.value = null }
     fun add() {
-        if (!_busy.value) {
+        if (!_busy.value && !_editor.value.open) {
             val date = if (_tab.value == "records") _filter.value ?: LocalDate.now().toString() else LocalDate.now().toString()
             setEditor(EditorState(open = true, input = RecordInput(date = date)))
         }
@@ -181,6 +191,8 @@ class HealthViewModel(private val repository: HealthRepository, private val save
         viewModelScope.launch {
             try {
                 repository.saveGoals(value)
+                lastKnownGoals = value
+                if (goals.value.loadFailed) retryGoals()
                 _goalsOpen.value = false
                 _message.value = "Daily goals updated."
             } catch (e: Exception) {
@@ -189,7 +201,22 @@ class HealthViewModel(private val repository: HealthRepository, private val save
             } finally { _busy.value = false }
         }
     }
-    fun change(input: RecordInput) { if (!_busy.value && !_editor.value.loading) setEditor(_editor.value.copy(input = input, errors = emptyMap())) }
+    fun change(input: RecordInput) {
+        val state = _editor.value
+        if (_busy.value || !state.open || state.loading || input == state.input) return
+        val errors = if (state.errors.isEmpty()) state.errors else {
+            val previous = state.input
+            val changed = buildSet {
+                if (previous.date != input.date) add("date")
+                if (previous.steps != input.steps) add("steps")
+                if (previous.calories != input.calories) add("calories")
+                if (previous.water != input.water) add("water")
+                if (state.errors["form"] == RecordValidator.EMPTY_ACTIVITY_ERROR) add("form")
+            }
+            state.errors - changed + RecordValidator.validate(input).filterKeys { it in changed }
+        }
+        setEditor(state.copy(input = input, errors = errors))
+    }
 
     fun save() {
         val state = _editor.value

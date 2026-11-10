@@ -22,11 +22,22 @@ class RecordsViewModelTest {
         var updates = 0
         var deletes = 0
         var failDelete = false
+        var failGoalsRead = false
+        var goalsReads = 0
+        val savedGoals = MutableStateFlow<DailyGoals?>(null)
+        var filteredReadGate: CompletableDeferred<Unit>? = null
         override fun observeTotals(date: String) = entry.map { if (it?.date == date) DailyTotals(it.steps.toLong(), it.calories.toLong(), it.water.toLong()) else DailyTotals() }
-        override fun observeGoals(): Flow<DailyGoals?> = flowOf(null)
-        override suspend fun saveGoals(goals: DailyGoals) = Unit
+        override fun observeGoals(): Flow<DailyGoals?> = flow {
+            goalsReads++
+            if (failGoalsRead) error("Simulated goals read failure")
+            emitAll(savedGoals)
+        }
+        override suspend fun saveGoals(goals: DailyGoals) { savedGoals.value = goals }
         override suspend fun insert(record: HealthRecord): Long { inserts++; return 8L }
-        override fun observeRecords(date: String?) = entry.map { if (it != null && (date == null || it.date == date)) listOf(it) else emptyList() }
+        override fun observeRecords(date: String?) = flow {
+            if (date != null) filteredReadGate?.await()
+            emitAll(entry.map { if (it != null && (date == null || it.date == date)) listOf(it) else emptyList() })
+        }
         override fun observeCount() = entry.map { if (it == null) 0 else 1 }
         override suspend fun count() = if (entry.value == null) 0 else 1
         override suspend fun find(id: Long) = entry.value?.takeIf { it.id == id }
@@ -118,5 +129,86 @@ class RecordsViewModelTest {
         assertNull(model.deleteTarget.value)
         assertNull(dao.entry.value)
         assertFalse(model.busy.value)
+    }
+
+    @Test fun editingOneFieldRetainsUnrelatedValidationErrors() {
+        val model = model()
+        model.add()
+        model.save()
+        assertEquals(setOf("steps", "calories", "water"), model.editor.value.errors.keys)
+
+        model.change(model.editor.value.input.copy(steps = "125"))
+        assertEquals(setOf("calories", "water"), model.editor.value.errors.keys)
+        model.change(model.editor.value.input.copy(calories = "-1"))
+        assertEquals("Enter a whole number from 0 to 2,147,483,647.", model.editor.value.errors["calories"])
+        assertEquals("This field is required.", model.editor.value.errors["water"])
+        assertEquals(0, dao.inserts)
+    }
+
+    @Test fun goalObservationCanRetryAndTracksLaterWrites() = runTest {
+        val model = model()
+        dao.failGoalsRead = true
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.goals.collect() }
+        runCurrent()
+        assertTrue(model.goals.value.loadFailed)
+        assertEquals(DailyGoals(), model.goals.value.value)
+
+        val original = DailyGoals(water = 2400)
+        dao.savedGoals.value = original
+        dao.failGoalsRead = false
+        model.retryGoals()
+        runCurrent()
+        assertFalse(model.goals.value.loadFailed)
+        assertEquals(original, model.goals.value.value)
+
+        val updated = original.copy(water = 2600)
+        model.saveGoals(updated)
+        runCurrent()
+        assertEquals(updated, model.goals.value.value)
+        assertEquals(2, dao.goalsReads)
+    }
+
+    @Test fun savingGoalsRestartsFailedObservation() = runTest {
+        val model = model()
+        dao.failGoalsRead = true
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.goals.collect() }
+        runCurrent()
+        assertTrue(model.goals.value.loadFailed)
+
+        val updated = DailyGoals(steps = 6000)
+        model.saveGoals(updated)
+        runCurrent()
+        assertTrue(model.goals.value.loadFailed)
+        assertEquals(updated, model.goals.value.value)
+        assertEquals(2, dao.goalsReads)
+
+        dao.failGoalsRead = false
+        model.retryGoals()
+        runCurrent()
+        assertFalse(model.goals.value.loadFailed)
+        assertEquals(updated, model.goals.value.value)
+    }
+
+    @Test fun pendingFilterNeverPairsItsDateWithPreviousRows() = runTest {
+        val model = model()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.records.collect() }
+        runCurrent()
+        assertNull(model.records.value.date)
+        assertEquals(listOf(dao.entry.value), model.records.value.records)
+
+        val gate = CompletableDeferred<Unit>()
+        dao.filteredReadGate = gate
+        val yesterday = LocalDate.now().minusDays(1).toString()
+        model.filterByDate(yesterday)
+        runCurrent()
+        assertEquals(yesterday, model.records.value.date)
+        assertTrue(model.records.value.loading)
+        assertTrue(model.records.value.records.isEmpty())
+
+        gate.complete(Unit)
+        runCurrent()
+        assertEquals(yesterday, model.records.value.date)
+        assertFalse(model.records.value.loading)
+        assertTrue(model.records.value.records.isEmpty())
     }
 }

@@ -37,6 +37,7 @@ class HealthMateUiTest {
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.onAllNodesWithText("This field is required.").assertCountEquals(3)
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("1200")
+        compose.onAllNodesWithText("This field is required.").assertCountEquals(2)
         compose.onNodeWithText("Steps walked").performImeAction()
         compose.onNodeWithText("Calories burned").assertIsFocused().performTextInput("60")
         compose.onNodeWithText("Calories burned").performImeAction()

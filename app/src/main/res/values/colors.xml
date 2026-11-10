@@ -1,0 +1,5 @@
+<resources>
+    <color name="healthmate_icon_background">#263B68</color>
+    <color name="healthmate_window">#F5FAF9</color>
+    <bool name="healthmate_light_bars">true</bool>
+</resources>
