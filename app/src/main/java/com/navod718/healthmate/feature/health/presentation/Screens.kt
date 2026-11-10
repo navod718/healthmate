@@ -85,7 +85,6 @@ fun DashboardScreen(
                     style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             }
         }
-        Spacer(Modifier.height(88.dp))
     }
 }
 

@@ -105,18 +105,28 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                 })
         },
         bottomBar = {
-            if (!editor.open) NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                NavigationBarItem(selected = tab == "dashboard", onClick = { model.selectTab("dashboard") },
-                    icon = { Icon(Icons.Default.Dashboard, null) }, label = { Text("Dashboard") })
-                NavigationBarItem(selected = tab == "records", onClick = { model.selectTab("records") },
-                    icon = { Icon(Icons.Default.History, null) }, label = { Text("Records") })
+            if (!editor.open) Column {
+                if (screen == HealthScreen.Dashboard) {
+                    // Measuring the action with the bottom bar keeps it outside the dashboard scroll viewport.
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .windowInsetsPadding(ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal))
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
+                        AddRecordButton(onClick = model::add)
+                    }
+                }
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
+                    NavigationBarItem(selected = tab == "dashboard", onClick = { model.selectTab("dashboard") },
+                        icon = { Icon(Icons.Default.Dashboard, null) }, label = { Text("Dashboard") })
+                    NavigationBarItem(selected = tab == "records", onClick = { model.selectTab("records") },
+                        icon = { Icon(Icons.Default.History, null) }, label = { Text("Records") })
+                }
             }
         },
         floatingActionButton = {
-            if (!editor.open) ExtendedFloatingActionButton(onClick = model::add,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                icon = { Icon(Icons.Default.Add, null) }, text = { Text("Add record") })
+            if (screen == HealthScreen.Records) AddRecordButton(onClick = model::add)
         },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
@@ -176,4 +186,15 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
         dismissButton = { TextButton(onClick = model::closeSamples, enabled = !busy) { Text("Cancel") } },
     )
     if (goalsOpen) GoalsDialog(goals, busy, model::closeGoals, model::saveGoals, model::retryGoals)
+}
+
+@Composable
+private fun AddRecordButton(onClick: () -> Unit) {
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        icon = { Icon(Icons.Default.Add, null) },
+        text = { Text("Add record") },
+    )
 }
