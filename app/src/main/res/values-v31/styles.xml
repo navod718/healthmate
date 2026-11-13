@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.HealthMate.Starting" parent="Theme.HealthMate">
+        <item name="android:windowSplashScreenBackground">@color/healthmate_window</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/healthmate_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/healthmate_icon_background</item>
+    </style>
+</resources>

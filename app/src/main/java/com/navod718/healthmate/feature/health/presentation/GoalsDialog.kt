@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 import com.navod718.healthmate.feature.health.data.DailyGoals
 
 @Composable
-fun GoalsDialog(goals: DailyGoals, busy: Boolean, onDismiss: () -> Unit, onSave: (DailyGoals) -> Unit) {
+fun GoalsDialog(state: GoalsState, busy: Boolean, onDismiss: () -> Unit, onSave: (DailyGoals) -> Unit, onRetry: () -> Unit) {
+    val goals = state.value
     var steps by rememberSaveable(goals) { mutableStateOf(goals.steps.toString()) }
     var calories by rememberSaveable(goals) { mutableStateOf(goals.calories.toString()) }
     var water by rememberSaveable(goals) { mutableStateOf(goals.water.toString()) }
@@ -24,6 +25,10 @@ fun GoalsDialog(goals: DailyGoals, busy: Boolean, onDismiss: () -> Unit, onSave:
         text = {
             Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Choose daily targets that fit your routine.")
+                if (state.loadFailed) {
+                    Text("Saved goals could not be refreshed. Showing the last available targets.", color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = onRetry, enabled = !busy) { Text("Retry loading goals") }
+                }
                 listOf(Triple("Steps goal", steps, { value: String -> steps = value }), Triple("Calories goal (kcal)", calories, { value: String -> calories = value }), Triple("Water goal (ml)", water, { value: String -> water = value })).forEach { (label, value, change) ->
                     OutlinedTextField(value = value, onValueChange = { change(it); error = false }, label = { Text(label) }, enabled = !busy, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
                 }

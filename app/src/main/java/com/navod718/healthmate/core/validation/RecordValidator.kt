@@ -10,6 +10,8 @@ data class RecordInput(
 )
 
 object RecordValidator {
+    internal const val EMPTY_ACTIVITY_ERROR = "Enter at least one value greater than zero."
+
     fun validate(input: RecordInput, today: LocalDate = LocalDate.now()): Map<String, String> {
         val errors = mutableMapOf<String, String>()
         val date = runCatching { LocalDate.parse(input.date) }.getOrNull()
@@ -21,7 +23,7 @@ object RecordValidator {
                 errors[key] = "Enter a whole number from 0 to 2,147,483,647."
         }
         if (errors.isEmpty() && listOf(input.steps, input.calories, input.water).all { it.toInt() == 0 }) {
-            errors["form"] = "Enter at least one value greater than zero."
+            errors["form"] = EMPTY_ACTIVITY_ERROR
         }
         return errors
     }

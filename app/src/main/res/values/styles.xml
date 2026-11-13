@@ -1,7 +1,13 @@
 <resources>
-    <style name="Theme.HealthMate" parent="android:style/Theme.Material.Light.NoActionBar">
+    <style name="Theme.HealthMate.Platform" parent="android:style/Theme.Material.Light.NoActionBar" />
+    <style name="Theme.HealthMate.Base" parent="Theme.HealthMate.Platform">
         <item name="android:fontFamily">sans</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@color/healthmate_window</item>
+        <item name="android:windowLightStatusBar">@bool/healthmate_light_bars</item>
         <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="Theme.HealthMate" parent="Theme.HealthMate.Base" />
+    <style name="Theme.HealthMate.Starting" parent="Theme.HealthMate">
+        <item name="android:windowBackground">@drawable/healthmate_starting_window</item>
     </style>
 </resources>

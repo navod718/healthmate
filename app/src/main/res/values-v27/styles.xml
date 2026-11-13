@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.HealthMate" parent="Theme.HealthMate.Base">
+        <item name="android:windowLightNavigationBar">@bool/healthmate_light_bars</item>
+    </style>
+</resources>

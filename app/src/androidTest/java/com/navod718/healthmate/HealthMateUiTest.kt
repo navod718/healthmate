@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import org.junit.*
+import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -32,11 +33,26 @@ class HealthMateUiTest {
         }
     }
     @After fun close() { store.clear(); database.close() }
+
+    @Test fun dashboardContentScrollsAboveAddRecordButton() {
+        val footer = "Totals include every record you log for today. Your records stay on this device."
+        compose.waitUntil(10_000) { compose.onAllNodesWithText(footer).fetchSemanticsNodes().isNotEmpty() }
+        val viewport = compose.onNode(hasScrollAction()).fetchSemanticsNode().boundsInRoot
+        val addButton = compose.onNode(
+            hasClickAction() and hasAnyDescendant(hasText("Add record")),
+            useUnmergedTree = true,
+        ).fetchSemanticsNode().boundsInRoot
+
+        assertTrue("The dashboard viewport must end above the Add record button", viewport.bottom <= addButton.top)
+        compose.onNodeWithText(footer).performScrollTo().assertIsDisplayed()
+    }
+
     @Test fun addFormValidatesThenPersistsAndDisplaysRecord() {
         compose.onNodeWithText("Add record", useUnmergedTree = true).performClick()
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.onAllNodesWithText("This field is required.").assertCountEquals(3)
         compose.onNodeWithText("Steps walked").performScrollTo().performTextInput("1200")
+        compose.onAllNodesWithText("This field is required.").assertCountEquals(2)
         compose.onNodeWithText("Steps walked").performImeAction()
         compose.onNodeWithText("Calories burned").assertIsFocused().performTextInput("60")
         compose.onNodeWithText("Calories burned").performImeAction()
