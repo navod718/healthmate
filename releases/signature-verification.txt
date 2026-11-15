@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Navod Daham, OU=HealthMate, O=Personal, C=LK
+Signer #1 certificate SHA-256 digest: 6556baeb7699c63323c586f07e97ac8ef1c2468c64314cfda5fa3006a14a3586
+Signer #1 certificate SHA-1 digest: 5b720574e87791953e2fb70fe5adc8e3386433cc
+Signer #1 certificate MD5 digest: 98b7e15390df45521b7ba483f9b9b538
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: 3cb068b38d184b52f8a346883fa819d1cf4385b9e5101916a030a40516559df4
+Signer #1 public key SHA-1 digest: b60306b97a419360a293bb4ef4fe1edb9a1579ec
+Signer #1 public key MD5 digest: 7e448cafa3adee6cdbf8ece18fe55031
