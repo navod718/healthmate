@@ -43,6 +43,7 @@ class ReportScreenshotsTest {
     }
     @After fun close() { store.clear(); db.close() }
     private fun capture(name: String) {
+        compose.runOnIdle { model.clearMessage() }
         compose.waitForIdle()
         val context = ApplicationProvider.getApplicationContext<Context>()
         val image = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
@@ -61,6 +62,8 @@ class ReportScreenshotsTest {
     @Test fun captureImplementedScreensWithSyntheticRecords() {
         compose.waitUntil(10_000) { !model.totals.value.loading && model.totals.value.totals.water == 500L }
         capture("01-dashboard")
+        compose.onNodeWithText("25% of 2,000 ml goal").performScrollTo()
+        capture("09-dashboard-totals")
         compose.onNodeWithText("Add record",useUnmergedTree=true).performClick()
         compose.onNodeWithText("Save record").performScrollTo().performClick()
         compose.onAllNodesWithText("This field is required.").assertCountEquals(3)
