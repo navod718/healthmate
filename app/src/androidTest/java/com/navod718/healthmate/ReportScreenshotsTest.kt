@@ -1,6 +1,9 @@
 package com.navod718.healthmate
 
 import android.content.Context
+import android.content.ContentValues
+import android.provider.MediaStore
+import androidx.test.filters.SdkSuppress
 import android.graphics.Bitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -16,14 +19,13 @@ import com.navod718.healthmate.core.database.HealthDatabase
 import com.navod718.healthmate.feature.health.data.*
 import com.navod718.healthmate.feature.health.presentation.*
 import com.navod718.healthmate.ui.theme.HealthMateTheme
-import java.io.File
-import java.io.FileOutputStream
 import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
 
 // Report-only capture fixture. Uses production composables and an isolated in-memory database.
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
 class ReportScreenshotsTest {
     @get:Rule val compose = createComposeRule()
@@ -43,9 +45,17 @@ class ReportScreenshotsTest {
     private fun capture(name: String) {
         compose.waitForIdle()
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val directory = File(context.getExternalFilesDir(null), "report-evidence").apply { mkdirs() }
         val image = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-        FileOutputStream(File(directory,"$name.png")).use { image.compress(Bitmap.CompressFormat.PNG,100,it) }
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME,"$name.png")
+            put(MediaStore.Images.Media.MIME_TYPE,"image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH,"Pictures/HealthMateReport")
+            put(MediaStore.Images.Media.IS_PENDING,1)
+        }
+        val uri = requireNotNull(context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values))
+        context.contentResolver.openOutputStream(uri)!!.use { image.compress(Bitmap.CompressFormat.PNG,100,it) }
+        values.clear(); values.put(MediaStore.Images.Media.IS_PENDING,0)
+        context.contentResolver.update(uri,values,null,null)
         image.recycle()
     }
     @Test fun captureImplementedScreensWithSyntheticRecords() {

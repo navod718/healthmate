@@ -60,7 +60,7 @@ jobs:
           script: |
             ./gradlew connectedDebugAndroidTest
             mkdir -p app/build/outputs/report-screenshots
-            adb pull /sdcard/Android/data/com.navod718.healthmate/files/report-evidence/. app/build/outputs/report-screenshots/
+            adb pull /sdcard/Pictures/HealthMateReport/. app/build/outputs/report-screenshots/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
