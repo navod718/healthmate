@@ -40,6 +40,12 @@ Compose uses the system animation scale. The platform splash exit removes the sp
 - History and dashboard render the date carried in their own loading, result and error state. A delayed result cannot be displayed under a different date label.
 - The editor rejects repeated Add actions while open. Database entities, schema files, queries and migrations are unchanged.
 
+## Current delivery status
+
+Navod is the project contact. The sections below preserve the branding review’s historical verification record. Later CI evidence is available on [the report branch](https://github.com/navod718/healthmate/tree/docs/technical-report/docs/report-evidence): 19 JVM tests and 18 Android tests passed, including one report screenshot fixture. The [signed release APK](https://github.com/navod718/healthmate/tree/build/release-apk/releases) is now available with a checksum and signature verification. Its private signing key is excluded from Git. The report and release artifacts are on separate branches.
+
+The dashboard clearance issue noted in the earlier review was subsequently addressed in commit `b6c2927`. Historical measurements below describe their original scope.
+
 ## Verification
 
 An AI-assisted engineering review ran the checks below on the project's behalf. The results record the scope and limits of that verification.
@@ -72,7 +78,7 @@ Raw evidence remains in the ignored `captures/` and build directories.
 | `captures/release/release-smoke-before-api27-fix.txt` | Passing nine-check release smoke run. `release-smoke.txt`, `release-smoke-system-ui-timeout.txt`, `release-final-smoke.txt` and `post-fix-emulator-diagnostics.txt` record failed or incomplete attempts. |
 | `captures/release/` screenshots and `release-motion.mp4` | Visual evidence from the pre-fix QA release. The recording has no narration. |
 | `app/build/outputs/apk/release/app-release-unsigned.apk` | Unsigned release output for signing with a private release key. |
-| `captures/release/healthmate-release-qa.apk` and `apk-verification.txt` | Debug-key-signed release variant for QA, with package, signature and hash evidence. The coursework-signed APK remains outstanding. |
+| `captures/release/healthmate-release-qa.apk` and `apk-verification.txt` | Debug-key-signed release variant for QA, with package, signature and hash evidence. This was the earlier QA artifact; the separately signed release APK is linked above. |
 
 ## Changed files
 
