@@ -35,7 +35,7 @@ class HealthMateUiTest {
     @After fun close() { store.clear(); database.close() }
 
     @Test fun dashboardContentScrollsAboveAddRecordButton() {
-        val footer = "Totals include every record you log for today. Your records stay on this device."
+        val footer = "Daily totals · Stored on this device."
         compose.waitUntil(10_000) { compose.onAllNodesWithText(footer).fetchSemanticsNodes().isNotEmpty() }
         val viewport = compose.onNode(hasScrollAction()).fetchSemanticsNode().boundsInRoot
         val addButton = compose.onNode(
@@ -44,7 +44,13 @@ class HealthMateUiTest {
         ).fetchSemanticsNode().boundsInRoot
 
         assertTrue("The dashboard viewport must end above the Add record button", viewport.bottom <= addButton.top)
-        compose.onNodeWithText(footer).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(footer).assertIsDisplayed()
+        val footerBounds = compose.onNodeWithText(footer).fetchSemanticsNode().boundsInRoot
+        assertTrue("The storage note must stay below the scroll area", viewport.bottom <= footerBounds.top)
+        assertTrue("The storage note must stay above Add record", footerBounds.bottom <= addButton.top)
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("0 ml").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("0 ml").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(footer).assertIsDisplayed()
     }
 
     @Test fun addFormValidatesThenPersistsAndDisplaysRecord() {
