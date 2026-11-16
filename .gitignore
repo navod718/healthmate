@@ -7,3 +7,12 @@ local.properties
 *.jks
 *.keystore
 captures/
+
+# Local OS metadata and private release signing material
+.DS_Store
+._*
+*.p12
+*.pfx
+*.apk.idsig
+keystore.properties
+signing.properties
