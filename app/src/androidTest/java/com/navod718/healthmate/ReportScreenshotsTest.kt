@@ -24,7 +24,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
 
-// Report-only capture fixture. Uses production composables and an isolated in-memory database.
+// Report screenshots use an in-memory database and sample records.
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
 class ReportScreenshotsTest {

@@ -38,7 +38,7 @@ fun RecordsScreen(state: RecordsState, busy: Boolean, onFilter: (String?) -> Uni
                   onSamples: () -> Unit, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     val filter = state.date
     var datePickerOpen by rememberSaveable { mutableStateOf(false) }
-    // Header is in the list too, so controls remain reachable on small screens and large fonts.
+    // Scroll the controls with the list on smaller screens.
     key(filter) {
         LazyColumn(modifier.fillMaxSize().testTag("records-list"),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 104.dp),
