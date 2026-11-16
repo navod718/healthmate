@@ -2,6 +2,8 @@
 
 HealthMate is a native Android health and wellness tracker. It stores daily steps, calories burned and water intake in millilitres on the device using Room and SQLite.
 
+Project contact: **Navod Daham (Navod)** — Kingston ID **K2635839**.
+
 ## Features
 
 - View today's activity totals and progress toward editable daily goals.
@@ -38,7 +40,8 @@ The instrumentation command requires a connected device or emulator. The [CI wor
 | --- | --- |
 | [Brand, motion and state](docs/HealthMate_Brand_and_Motion.md) | Current implementation, verification results and local evidence index |
 | [Project blueprint](docs/HealthMate_Project_Blueprint.pdf) | Historical design and submission plan, with its AI-assistance disclosure |
-| [Work allocation](docs/HealthMate_Work_Allocation.pdf) | Earlier proposal to split UI and data work |
-| [Development workload](docs/HealthMate_Development_Workload.pdf) | Later proposal to split development work by feature |
+| [Development plan](docs/HealthMate_Development_Plan.md) · [PDF](docs/HealthMate_Development_Plan.pdf) | Current development scope, named for Navod |
+| [Technical report draft](https://github.com/navod718/healthmate/tree/docs/technical-report/docs) | PDF, editable Word document and verified screenshot/test evidence on the report branch |
+| [Signed release APK](https://github.com/navod718/healthmate/tree/build/release-apk/releases) | APK, installation notes, checksum and signature verification on the release branch |
 
-The allocation documents record proposed work. Actual contributions should be recorded separately. The coursework brief describes individual assessment, so follow the lecturer's collaboration guidance and accurately acknowledge assistance and AI use. HealthMate implements SQLite through Room. The brief names `sqflite`, and lecturer guidance accepting Room was reported. Retain any written clarification with the coursework records.
+The development plan records scope and maintenance responsibilities. Actual contributions should be recorded separately. The earlier split-work plans are retained in Git history; the current plan replaces them. The coursework brief describes individual assessment, so follow the lecturer's collaboration guidance and accurately acknowledge assistance and AI use. HealthMate implements SQLite through Room. The brief names `sqflite`, and lecturer guidance accepting Room was reported. Retain any written clarification with the coursework records.
