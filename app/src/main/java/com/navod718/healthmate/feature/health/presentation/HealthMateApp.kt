@@ -107,6 +107,12 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
         bottomBar = {
             if (!editor.open) Column {
                 if (screen == HealthScreen.Dashboard) {
+                    Text(
+                        "Daily totals · Stored on this device.",
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     // Keep Add outside the scroll area.
                     Box(
                         Modifier.fillMaxWidth()

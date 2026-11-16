@@ -87,8 +87,6 @@ fun DashboardScreen(
                     "kcal", Icons.Default.LocalFireDepartment, colors.error, colors.errorContainer, colors.onErrorContainer)
                 MetricCard("Water intake", state.totals.water, goals.water, goals.progress(state.totals.water, goals.water),
                     "ml", Icons.Default.WaterDrop, colors.secondary, colors.secondaryContainer, colors.onSecondaryContainer)
-                Text("Totals include every record you log for today. Your records stay on this device.",
-                    style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             }
         }
     }
