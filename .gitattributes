@@ -1,0 +1,6 @@
+# Generated documents and distribution artifacts are binary, not text diffs.
+*.pdf binary
+*.docx binary
+*.apk binary
+*.png binary
+*.zip binary

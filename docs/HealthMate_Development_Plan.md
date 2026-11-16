@@ -30,7 +30,7 @@ Run JVM validation and state tests, Android Room and Compose tests, and lint/bui
 
 ## Current delivery references
 
-The application is implemented on main. The technical report draft is on docs/technical-report. The signed APK, checksum and signature verification are on build/release-apk. These branches contain separate deliverables; they are not all merged into main. The private signing key must remain outside Git.
+The application, report draft and signed APK are integrated into main. The original docs/technical-report and build/release-apk branches retain the deliverable history. The release folder contains the APK, checksum and signature verification. The private signing key must remain outside Git.
 
 ## Coursework handoff
 
