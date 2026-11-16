@@ -18,7 +18,7 @@ launch = Path(f'release-evidence/launch-{attempt}.txt').read_text()
 assert 'Status: ok' in launch, launch
 root = ET.parse(f'release-evidence/window-{attempt}.xml').getroot()
 texts = ' '.join(n.get('text', '') + ' ' + n.get('content-desc', '') for n in root.iter('node'))
-assert 'HealthMate' in texts and 'Steps walked' in texts and 'Add record' in texts, texts
+assert all(label in texts for label in ('HealthMate', 'Steps walked', 'Dashboard', 'Records')), texts
 print('Release dashboard visible on launch', attempt)
 PY
   adb exec-out screencap -p > "release-evidence/launch-${attempt}.png"
