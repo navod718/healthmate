@@ -5,6 +5,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ fun GoalsDialog(state: GoalsState, busy: Boolean, onDismiss: () -> Unit, onSave:
     var water by rememberSaveable(goals) { mutableStateOf(goals.water.toString()) }
     var error by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
+        icon = { Icon(Icons.Default.Flag, null, tint = MaterialTheme.colorScheme.primary) },
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("Daily goals") },
         text = {
@@ -30,7 +33,7 @@ fun GoalsDialog(state: GoalsState, busy: Boolean, onDismiss: () -> Unit, onSave:
                     TextButton(onClick = onRetry, enabled = !busy) { Text("Retry loading goals") }
                 }
                 listOf(Triple("Steps goal", steps, { value: String -> steps = value }), Triple("Calories goal (kcal)", calories, { value: String -> calories = value }), Triple("Water goal (ml)", water, { value: String -> water = value })).forEach { (label, value, change) ->
-                    OutlinedTextField(value = value, onValueChange = { change(it); error = false }, label = { Text(label) }, enabled = !busy, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = value, onValueChange = { change(it); error = false }, label = { Text(label) }, enabled = !busy, singleLine = true, shape = MaterialTheme.shapes.small, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
                 }
                 if (error) Text("Each goal must be a positive whole number up to 2,147,483,647.", color = MaterialTheme.colorScheme.error)
             }

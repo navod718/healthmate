@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p release-evidence
-adb install releases/HealthMate-0.1.0-release.apk
+adb install releases/HealthMate-0.1.1-release.apk
 adb logcat -c
 for attempt in 1 2; do
   adb shell am force-stop com.navod718.healthmate

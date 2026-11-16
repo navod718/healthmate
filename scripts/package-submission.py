@@ -22,7 +22,7 @@ files = {'HealthMate_Source.zip': source}
 for local, target in [
     ('docs/HealthMate_Technical_Report_Draft.pdf', 'HealthMate_Technical_Report_REVIEW.pdf'),
     ('docs/HealthMate_Technical_Report_Draft.docx', 'HealthMate_Technical_Report_EDITABLE.docx'),
-    ('releases/HealthMate-0.1.0-release.apk', 'HealthMate-0.1.0-release.apk'),
+    ('releases/HealthMate-0.1.1-release.apk', 'HealthMate-0.1.1-release.apk'),
     ('releases/signature-verification.txt', 'Evidence/signature-verification.txt'),
     ('docs/report-evidence/test-summary.json', 'Evidence/test-summary.json'),
     ('docs/submission/HealthMate_Recording_and_Submission_Guide.pdf', 'Recording_and_Submission_Guide.pdf'),

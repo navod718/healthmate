@@ -7,7 +7,6 @@ import androidx.room.Update
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
-// Shared persistence for tracking, records management and daily goals.
 @Dao
 interface HealthRecordDao {
     @Query("SELECT COALESCE(SUM(steps), 0) AS steps, COALESCE(SUM(calories), 0) AS calories, COALESCE(SUM(water), 0) AS water FROM health_records WHERE date = :date")

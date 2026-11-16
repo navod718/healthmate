@@ -107,7 +107,13 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
         bottomBar = {
             if (!editor.open) Column {
                 if (screen == HealthScreen.Dashboard) {
-                    // Measuring the action with the bottom bar keeps it outside the dashboard scroll viewport.
+                    Text(
+                        "Daily totals · Stored on this device.",
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    // Keep Add outside the scroll area.
                     Box(
                         Modifier.fillMaxWidth()
                             .windowInsetsPadding(ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal))
@@ -146,7 +152,7 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
             },
             label = "Health screen",
         ) { destination ->
-            // Only the active destination can own focus, gestures or accessibility nodes.
+            // Keep inactive screens out of focus and accessibility.
             if (destination == screen) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     val page = Modifier.widthIn(max = 640.dp).fillMaxWidth()

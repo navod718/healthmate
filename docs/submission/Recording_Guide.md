@@ -4,7 +4,7 @@ Use your own voice. Practise the steps before recording and adapt these suggeste
 
 ## 1. Prepare on your Mac
 
-Download `releases/HealthMate-0.1.0-release.apk` and drag it onto the running Android Studio emulator. If Android reports a signature conflict with a debug installation, preserve any records you need before uninstalling the old app: uninstalling removes its local data. Use the installed signed release for the demonstration.
+Download `releases/HealthMate-0.1.1-release.apk` and drag it onto the running Android Studio emulator. If Android reports a signature conflict with a debug installation, preserve any records you need before uninstalling the old app: uninstalling removes its local data. Use the installed signed release for the demonstration.
 
 Open HealthMate, close distracting windows and notifications, and choose a readable emulator size. Press Shift–Command–5, select a recording area around the emulator, and use Options to select your microphone. Make a short test recording and listen to it before recording the full demonstration. Stop using the menu-bar recording button.
 

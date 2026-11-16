@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -59,8 +62,11 @@ fun DashboardScreen(
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = BrandIndigo, contentColor = Color.White),
         ) {
-            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(displayDate(state.date), style = MaterialTheme.typography.labelLarge, color = BrandMint)
+            Column(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(BrandIndigo, Color(0xFF174D5B)))).padding(24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CalendarMonth, null, Modifier.size(18.dp), tint = BrandMint)
+                    Text(displayDate(state.date), style = MaterialTheme.typography.labelLarge, color = BrandMint)
+                }
                 Text("Your day, at a glance", Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineMedium)
                 Text("A daily view of your movement and hydration.", style = MaterialTheme.typography.bodyMedium)
             }
@@ -81,8 +87,6 @@ fun DashboardScreen(
                     "kcal", Icons.Default.LocalFireDepartment, colors.error, colors.errorContainer, colors.onErrorContainer)
                 MetricCard("Water intake", state.totals.water, goals.water, goals.progress(state.totals.water, goals.water),
                     "ml", Icons.Default.WaterDrop, colors.secondary, colors.secondaryContainer, colors.onSecondaryContainer)
-                Text("Totals include every record you log for today. Your records stay on this device.",
-                    style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             }
         }
     }
@@ -96,6 +100,7 @@ private fun MetricCard(
     val animatedProgress by animateFloatAsState(progress, tween(360), label = "Goal progress")
     OutlinedCard(
         Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
@@ -109,7 +114,7 @@ private fun MetricCard(
                 Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("${number(value)} $unit", style = MaterialTheme.typography.headlineMedium)
                 Spacer(Modifier.height(8.dp))
-                LinearProgressIndicator(progress = { animatedProgress }, modifier = Modifier.fillMaxWidth(), color = tint,
+                LinearProgressIndicator(progress = { animatedProgress }, modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)), color = tint,
                     trackColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                 Spacer(Modifier.height(5.dp))
                 Text("${(progress * 100).toInt()}% of ${number(goal.toLong())} $unit goal" + if (value >= goal) " · Goal reached" else "",
@@ -153,6 +158,7 @@ fun RecordForm(state: EditorState, busy: Boolean, onChange: (RecordInput) -> Uni
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(enabled = !busy, onClick = save, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
             if (busy) { CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
+            else { Icon(Icons.Default.Check, null, Modifier.size(20.dp)); Spacer(Modifier.width(8.dp)) }
             Text(if (busy) "Saving…" else if (state.id == null) "Save record" else "Save changes")
         }
     }
@@ -164,6 +170,17 @@ fun RecordForm(state: EditorState, busy: Boolean, onChange: (RecordInput) -> Uni
 @Composable
 private fun NumberField(label: String, unit: String, value: String, error: String?, enabled: Boolean, modifier: Modifier = Modifier, imeAction: ImeAction = ImeAction.Done, keyboardActions: KeyboardActions = KeyboardActions.Default, onChange: (String) -> Unit) {
     OutlinedTextField(value = value, onValueChange = onChange, label = { Text(label) }, suffix = { Text(unit) },
+        leadingIcon = { Icon(when (unit) {
+            "steps" -> Icons.AutoMirrored.Filled.DirectionsWalk
+            "kcal" -> Icons.Default.LocalFireDepartment
+            else -> Icons.Default.WaterDrop
+        }, null) },
+        shape = MaterialTheme.shapes.small,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+        ),
         enabled = enabled, isError = error != null, supportingText = { if (error != null) Text(error) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = imeAction), keyboardActions = keyboardActions, singleLine = true, modifier = modifier.fillMaxWidth())
 }

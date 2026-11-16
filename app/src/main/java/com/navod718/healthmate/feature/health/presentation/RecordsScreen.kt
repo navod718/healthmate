@@ -2,6 +2,7 @@ package com.navod718.healthmate.feature.health.presentation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -32,7 +38,7 @@ fun RecordsScreen(state: RecordsState, busy: Boolean, onFilter: (String?) -> Uni
                   onSamples: () -> Unit, onRetry: () -> Unit, modifier: Modifier = Modifier) {
     val filter = state.date
     var datePickerOpen by rememberSaveable { mutableStateOf(false) }
-    // Header is in the list too, so controls remain reachable on small screens and large fonts.
+    // Scroll the controls with the list on smaller screens.
     key(filter) {
         LazyColumn(modifier.fillMaxSize().testTag("records-list"),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 104.dp),
@@ -83,18 +89,21 @@ fun RecordsScreen(state: RecordsState, busy: Boolean, onFilter: (String?) -> Uni
                             fadeOutSpec = tween(140),
                         ).fillMaxWidth().testTag("record-${record.id}"),
                         shape = RoundedCornerShape(22.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                     ) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(displayDate(record.date), style = MaterialTheme.typography.titleMedium)
-                            Text("${NumberFormat.getIntegerInstance().format(record.steps)} steps")
-                            Text("${NumberFormat.getIntegerInstance().format(record.calories)} kcal burned")
-                            Text("${NumberFormat.getIntegerInstance().format(record.water)} ml water", color = MaterialTheme.colorScheme.primary)
+                            RecordMetric(Icons.AutoMirrored.Filled.DirectionsWalk, "${NumberFormat.getIntegerInstance().format(record.steps)} steps")
+                            RecordMetric(Icons.Default.LocalFireDepartment, "${NumberFormat.getIntegerInstance().format(record.calories)} kcal burned")
+                            RecordMetric(Icons.Default.WaterDrop, "${NumberFormat.getIntegerInstance().format(record.water)} ml water")
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                                 TextButton(enabled = !busy, onClick = { onEdit(record.id) }, modifier = Modifier.testTag("edit-${record.id}")) {
                                     Icon(Icons.Default.Edit, null, Modifier.size(18.dp)); Text(" Edit")
                                 }
-                                TextButton(enabled = !busy, onClick = { onDelete(record) }, modifier = Modifier.testTag("delete-${record.id}")) {
+                                TextButton(enabled = !busy, onClick = { onDelete(record) }, modifier = Modifier.testTag("delete-${record.id}"),
+                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
                                     Icon(Icons.Default.DeleteOutline, null, Modifier.size(18.dp)); Text(" Delete")
                                 }
                             }
@@ -106,5 +115,13 @@ fun RecordsScreen(state: RecordsState, busy: Boolean, onFilter: (String?) -> Uni
     }
     if (datePickerOpen) {
         RecordDatePicker(filter ?: LocalDate.now().toString(), onDate = onFilter, onDismiss = { datePickerOpen = false })
+    }
+}
+
+@Composable
+private fun RecordMetric(icon: ImageVector, value: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
     }
 }

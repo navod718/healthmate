@@ -1,5 +1,6 @@
 {
   "jvm": 19,
+  "device": 18,
   "jvm_cases": [
     {
       "class": "com.navod718.healthmate.DraftAndGoalsTest",
@@ -13,12 +14,27 @@
     },
     {
       "class": "com.navod718.healthmate.DraftAndGoalsTest",
-      "name": "untouchedFormClosesWithoutPrompt",
+      "name": "goalsArePositiveAndProgressIsCappedWithoutChangingTotals",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.DraftAndGoalsTest",
-      "name": "goalsArePositiveAndProgressIsCappedWithoutChangingTotals",
+      "name": "untouchedFormClosesWithoutPrompt",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "futureAndMalformedDatesAreRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "missingFieldsAreRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "negativeDecimalTextAndOverflowAreRejected",
       "passed": true
     },
     {
@@ -33,27 +49,7 @@
     },
     {
       "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "negativeDecimalTextAndOverflowAreRejected",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "missingFieldsAreRejected",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
       "name": "zeroOnlyEntryIsRejected",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "futureAndMalformedDatesAreRejected",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "goalObservationCanRetryAndTracksLaterWrites",
       "passed": true
     },
     {
@@ -63,12 +59,7 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "savingGoalsRestartsFailedObservation",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "editingUpdatesExistingIdWithoutInsertingAndUntouchedEditCloses",
+      "name": "deleteRequiresConfirmationAndFailureCanBeRetried",
       "passed": true
     },
     {
@@ -83,30 +74,49 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "missingRecordsAreHandledWithoutRecreatingDeletedData",
+      "name": "editingUpdatesExistingIdWithoutInsertingAndUntouchedEditCloses",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "deleteRequiresConfirmationAndFailureCanBeRetried",
+      "name": "goalObservationCanRetryAndTracksLaterWrites",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "missingRecordsAreHandledWithoutRecreatingDeletedData",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
       "name": "pendingFilterNeverPairsItsDateWithPreviousRows",
       "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "savingGoalsRestartsFailedObservation",
+      "passed": true
     }
   ],
-  "device": 18,
   "device_cases": [
+    {
+      "class": "com.navod718.healthmate.DraftRecreationTest",
+      "name": "activityRecreationPreservesUnsavedFormAndDiscardProtection",
+      "passed": true
+    },
     {
       "class": "com.navod718.healthmate.DraftRecreationTest",
       "name": "datePickerReopensOnActivityRecreationAndReturnsToTheSameDraft",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.DraftRecreationTest",
-      "name": "activityRecreationPreservesUnsavedFormAndDiscardProtection",
+      "class": "com.navod718.healthmate.HealthDatabaseTest",
+      "name": "dashboardSumsDoNotOverflowInt",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.HealthDatabaseTest",
+      "name": "goalsMigrationKeepsExistingRecordsAndPersistsTargets",
       "passed": true
     },
     {
@@ -120,13 +130,13 @@
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.HealthDatabaseTest",
-      "name": "goalsMigrationKeepsExistingRecordsAndPersistsTargets",
+      "class": "com.navod718.healthmate.HealthMateUiTest",
+      "name": "addFormValidatesThenPersistsAndDisplaysRecord",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.HealthDatabaseTest",
-      "name": "dashboardSumsDoNotOverflowInt",
+      "class": "com.navod718.healthmate.HealthMateUiTest",
+      "name": "backFromFormDoesNotSaveAndEmptyDashboardShowsZero",
       "passed": true
     },
     {
@@ -140,23 +150,8 @@
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.HealthMateUiTest",
-      "name": "addFormValidatesThenPersistsAndDisplaysRecord",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.HealthMateUiTest",
-      "name": "backFromFormDoesNotSaveAndEmptyDashboardShowsZero",
-      "passed": true
-    },
-    {
       "class": "com.navod718.healthmate.RecordsDatabaseTest",
       "name": "concurrentSampleRequestsOnlyPopulateAnEmptyDatabaseOnce",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsDatabaseTest",
-      "name": "historyFilteringEditsAndDeletionKeepTotalsConsistent",
       "passed": true
     },
     {
@@ -165,13 +160,8 @@
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.RecordsUiTest",
-      "name": "sampleLoadingRequiresConfirmationAndOnlyRunsOnAnEmptyDatabase",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsUiTest",
-      "name": "deletionCanBeCancelledThenConfirmedAndTotalsRefresh",
+      "class": "com.navod718.healthmate.RecordsDatabaseTest",
+      "name": "historyFilteringEditsAndDeletionKeepTotalsConsistent",
       "passed": true
     },
     {
@@ -181,7 +171,17 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsUiTest",
+      "name": "deletionCanBeCancelledThenConfirmedAndTotalsRefresh",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsUiTest",
       "name": "editChangesTheExistingRecordAndDashboard",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsUiTest",
+      "name": "sampleLoadingRequiresConfirmationAndOnlyRunsOnAnEmptyDatabase",
       "passed": true
     },
     {
@@ -191,7 +191,7 @@
     }
   ],
   "status": "success",
-  "run": "43751221320",
-  "app_revision": "73ceb27a3f4a974612a1df09426443880927c772",
-  "capture_revision": "a872a10a24695209add4d57bd5442ae996444ee8"
+  "run": "43851757024",
+  "app_revision": "877190690be32d8124a36961ac0dc62643a07fad",
+  "capture_revision": "581dd5b21163e2f9b400412d0a766428aa1c6ac7"
 }
