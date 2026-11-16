@@ -57,7 +57,10 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: ./gradlew connectedDebugAndroidTest
+          script: |
+            ./gradlew connectedDebugAndroidTest
+            mkdir -p app/build/outputs/report-screenshots
+            adb pull /sdcard/Pictures/HealthMateReport/. app/build/outputs/report-screenshots/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -65,3 +68,8 @@ jobs:
           path: |
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-screenshots
+          path: app/build/outputs/report-screenshots/*.png

@@ -42,7 +42,7 @@ Compose uses the system animation scale. The platform splash exit removes the sp
 
 ## Current delivery status
 
-Navod is the project contact. The sections below preserve the branding review’s historical verification record. Later CI evidence is available on [the report branch](https://github.com/navod718/healthmate/tree/docs/technical-report/docs/report-evidence): 19 JVM tests and 18 Android tests passed, including one report screenshot fixture. The [signed release APK](https://github.com/navod718/healthmate/tree/build/release-apk/releases) is now available with a checksum and signature verification. Its private signing key is excluded from Git. The report and release artifacts are on separate branches.
+Navod is the project contact. The sections below preserve the branding review’s historical verification record. Later CI evidence is available on [the report branch](https://github.com/navod718/healthmate/tree/docs/technical-report/docs/report-evidence): 19 JVM tests and 18 Android tests passed, including one report screenshot fixture. The [signed release APK](https://github.com/navod718/healthmate/tree/build/release-apk/releases) is now available with a checksum and signature verification. Its private signing key is excluded from Git. The report and release artifacts are now integrated into main; the original deliverable branches retain their history.
 
 The dashboard clearance issue noted in the earlier review was subsequently addressed in commit `b6c2927`. Historical measurements below describe their original scope.
 

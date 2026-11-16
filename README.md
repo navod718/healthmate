@@ -41,7 +41,9 @@ The instrumentation command requires a connected device or emulator. The [CI wor
 | [Brand, motion and state](docs/HealthMate_Brand_and_Motion.md) | Current implementation, verification results and local evidence index |
 | [Project blueprint](docs/HealthMate_Project_Blueprint.pdf) | Historical design and submission plan, with its AI-assistance disclosure |
 | [Development plan](docs/HealthMate_Development_Plan.md) · [PDF](docs/HealthMate_Development_Plan.pdf) | Current development scope, named for Navod |
-| [Technical report draft](https://github.com/navod718/healthmate/tree/docs/technical-report/docs) | PDF, editable Word document and verified screenshot/test evidence on the report branch |
-| [Signed release APK](https://github.com/navod718/healthmate/tree/build/release-apk/releases) | APK, installation notes, checksum and signature verification on the release branch |
+| [Technical report draft](docs/HealthMate_Technical_Report_Draft.pdf) | PDF, editable Word document and verified screenshot/test evidence  |
+| [Signed release APK](releases) | APK, installation notes, checksum and signature verification  |
 
 The development plan records scope and maintenance responsibilities. Actual contributions should be recorded separately. The earlier split-work plans are retained in Git history; the current plan replaces them. The coursework brief describes individual assessment, so follow the lecturer's collaboration guidance and accurately acknowledge assistance and AI use. HealthMate implements SQLite through Room. The brief names `sqflite`, and lecturer guidance accepting Room was reported. Retain any written clarification with the coursework records.
+
+See the [recording and submission guide](docs/submission/HealthMate_Recording_and_Submission_Guide.pdf) and [signed APK verification](docs/submission/Release_verification.md). The report is a review draft: personal reflection, declarations and required Drive links still need Navod’s input.

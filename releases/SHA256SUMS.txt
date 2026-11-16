@@ -1,0 +1,1 @@
+1a3b8df8f401ded0fb61e5b88c9e58cca76f204b3ec44fbbd051102fe4d87fc7  releases/HealthMate-0.1.0-release.apk
