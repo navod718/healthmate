@@ -4,7 +4,7 @@ This folder contains the signed release APK for HealthMate 0.1.1 (version code 2
 
 - Package: `com.navod718.healthmate`
 - Android requirement: Android 8.0 / API 26 or newer
-- Application source: `f1b85f7`
+- Application source: `877190690be32d8124a36961ac0dc62643a07fad`
 - Build: `assembleRelease`, then Android SDK `zipalign` and `apksigner`
 - The release signing key and passwords are private and are not stored in this repository.
 
