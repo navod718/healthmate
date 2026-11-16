@@ -17,7 +17,7 @@ attempt = sys.argv[1]
 launch = Path(f'release-evidence/launch-{attempt}.txt').read_text()
 assert 'Status: ok' in launch, launch
 root = ET.parse(f'release-evidence/window-{attempt}.xml').getroot()
-texts = ' '.join(n.get('text', '') for n in root.iter('node'))
+texts = ' '.join(n.get('text', '') + ' ' + n.get('content-desc', '') for n in root.iter('node'))
 assert 'HealthMate' in texts and 'Steps walked' in texts and 'Add record' in texts, texts
 print('Release dashboard visible on launch', attempt)
 PY

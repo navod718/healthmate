@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - releases/**
+      - scripts/verify-release.sh
       - .github/workflows/release-verification.yml
 permissions:
   contents: read
