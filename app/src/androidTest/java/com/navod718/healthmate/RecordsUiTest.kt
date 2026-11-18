@@ -88,7 +88,9 @@ class RecordsUiTest {
         compose.waitUntil(10_000) { model.records.value.records.size == 2 }
         compose.runOnIdle { model.filterByDate("2000-01-01") }
         compose.waitUntil(10_000) { !model.records.value.loading && model.records.value.records.isEmpty() }
-        compose.onNodeWithText("No records for this date").assertExists()
+        compose.onNodeWithTag("empty-filter-result").assertExists()
+        compose.onNodeWithText("No records found").assertExists()
+        compose.onNodeWithText("Clear filter").assertExists()
         compose.onNodeWithText("Try sample records").assertDoesNotExist()
     }
     @Test fun sampleLoadingRequiresConfirmationAndOnlyRunsOnAnEmptyDatabase() {

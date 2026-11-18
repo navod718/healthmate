@@ -22,6 +22,7 @@ class DraftAndGoalsTest {
         override suspend fun insert(record: HealthRecord) = 1L
         override fun observeRecords(date: String?): Flow<List<HealthRecord>> = flowOf(emptyList())
         override fun observeCount() = flowOf(0)
+        override fun observeDailyBreakdown(): Flow<List<DailyBreakdown>> = flowOf(emptyList())
         override suspend fun count() = 0
         override suspend fun find(id: Long): HealthRecord? = null
         override suspend fun update(record: HealthRecord) = 0
