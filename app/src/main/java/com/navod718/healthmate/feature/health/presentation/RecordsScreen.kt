@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -71,13 +72,26 @@ fun RecordsScreen(state: RecordsState, busy: Boolean, onFilter: (String?) -> Uni
                 }
                 state.records.isEmpty() -> item(key = "empty") {
                     Card(
-                        Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp),
+                        Modifier.fillMaxWidth().testTag(if (filter == null) "empty-records" else "empty-filter-result"),
+                        shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                     ) {
                         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(if (filter == null) "No records yet" else "No records for this date", style = MaterialTheme.typography.titleLarge)
-                            Text(if (filter == null) "Add a record to start your health history." else "Choose another date or clear the filter.")
-                            if (state.totalCount == 0) OutlinedButton(enabled = !busy, onClick = onSamples) { Text("Try sample records") }
+                            if (filter == null) {
+                                Text("No records yet", style = MaterialTheme.typography.titleLarge)
+                                Text("Add a record to start your health history.")
+                                if (state.totalCount == 0) OutlinedButton(enabled = !busy, onClick = onSamples) { Text("Try sample records") }
+                            } else {
+                                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.SearchOff, null, Modifier.size(28.dp), tint = MaterialTheme.colorScheme.error)
+                                    Text("No records found", style = MaterialTheme.typography.titleLarge)
+                                }
+                                Text(
+                                    "Nothing was logged on ${displayDate(filter)}. Choose another date, or add a record for this day.",
+                                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                TextButton(enabled = !busy, onClick = { onFilter(null) }) { Text("Clear filter") }
+                            }
                         }
                     }
                 }

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +35,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.navod718.healthmate.ui.theme.HealthMateMark
 import kotlinx.coroutines.delay
 
-private enum class HealthScreen { Dashboard, Records, Editor }
+private enum class HealthScreen { Dashboard, Insights, Records, Editor }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,10 +52,13 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
     val deleteTarget by model.deleteTarget.collectAsStateWithLifecycle()
     val deleteError by model.deleteError.collectAsStateWithLifecycle()
     val samplesOpen by model.samplesOpen.collectAsStateWithLifecycle()
+    val insights by model.insights.collectAsStateWithLifecycle()
+    val today by model.today.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val screen = when {
         editor.open -> HealthScreen.Editor
         tab == "records" -> HealthScreen.Records
+        tab == "insights" -> HealthScreen.Insights
         else -> HealthScreen.Dashboard
     }
     val horizontalDirection = if (LocalLayoutDirection.current == LayoutDirection.Ltr) 1 else -1
@@ -73,7 +77,8 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
     LaunchedEffect(message) {
         message?.let { snackbar.showSnackbar(it); model.clearMessage() }
     }
-    BackHandler(!editor.open && tab == "records") { model.selectTab("dashboard") }
+    BackHandler(!editor.open && tab == "records") { model.selectTab("insights") }
+    BackHandler(!editor.open && tab == "insights") { model.selectTab("dashboard") }
     BackHandler(editor.open) { model.closeEditor() }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -126,6 +131,8 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                 NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
                     NavigationBarItem(selected = tab == "dashboard", onClick = { model.selectTab("dashboard") },
                         icon = { Icon(Icons.Default.Dashboard, null) }, label = { Text("Dashboard") })
+                    NavigationBarItem(selected = tab == "insights", onClick = { model.selectTab("insights") },
+                        icon = { Icon(Icons.Default.Insights, null) }, label = { Text("Insights") })
                     NavigationBarItem(selected = tab == "records", onClick = { model.selectTab("records") },
                         icon = { Icon(Icons.Default.History, null) }, label = { Text("Records") })
                 }
@@ -144,7 +151,8 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                     targetState == HealthScreen.Editor -> slideInVertically(tween(240)) { it / 24 }
                     initialState == HealthScreen.Editor -> slideInVertically(tween(200)) { -it / 64 }
                     else -> {
-                        val direction = if (targetState == HealthScreen.Records) horizontalDirection else -horizontalDirection
+                        val order = listOf(HealthScreen.Dashboard, HealthScreen.Insights, HealthScreen.Records)
+                        val direction = if (order.indexOf(targetState) > order.indexOf(initialState)) horizontalDirection else -horizontalDirection
                         slideInHorizontally(tween(220)) { direction * it / 12 }
                     }
                 }
@@ -159,7 +167,8 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                     when (destination) {
                         HealthScreen.Editor -> RecordForm(editor, busy, model::change, model::save, page)
                         HealthScreen.Records -> RecordsScreen(records, busy, model::filterByDate, model::edit, model::requestDelete, model::openSamples, model::retry, page)
-                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, page)
+                        HealthScreen.Insights -> InsightsScreen(insights, goals.value, today, model::retry, page)
+                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, streak = insights.streak, onOpenInsights = { model.selectTab("insights") }, modifier = page)
                     }
                 }
             }
