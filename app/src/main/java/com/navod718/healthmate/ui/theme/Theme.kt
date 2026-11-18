@@ -24,6 +24,11 @@ import com.navod718.healthmate.R
 internal val BrandIndigo = Color(0xFF263B68)
 internal val BrandMint = Color(0xFF8EE5D3)
 
+// Dashboard metric card gradients. Chosen dark enough for white text in light and dark themes.
+internal val StepsGradient = listOf(Color(0xFF174D5B), Color(0xFF263B68))
+internal val CaloriesGradient = listOf(Color(0xFF9A3412), Color(0xFF7C2D12))
+internal val WaterGradient = listOf(Color(0xFF0E7490), Color(0xFF155E75))
+
 private val LightColors = lightColorScheme(
     primary = Color(0xFF006872), onPrimary = Color.White,
     primaryContainer = Color(0xFFC6F2EF), onPrimaryContainer = Color(0xFF00363B),

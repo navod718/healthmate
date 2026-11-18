@@ -1,8 +1,14 @@
 package com.navod718.healthmate.feature.health.presentation
 
 import android.app.DatePickerDialog
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -19,8 +25,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +39,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.navod718.healthmate.core.validation.RecordInput
 import com.navod718.healthmate.ui.theme.BrandIndigo
 import com.navod718.healthmate.ui.theme.BrandMint
+import com.navod718.healthmate.ui.theme.CaloriesGradient
+import com.navod718.healthmate.ui.theme.StepsGradient
+import com.navod718.healthmate.ui.theme.WaterGradient
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -56,21 +70,41 @@ fun DashboardScreen(
     retryGoals: () -> Unit,
     streak: Int = 0,
     onOpenInsights: () -> Unit = {},
+    onQuickAddWater: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val allGoalsMet = state.totals.steps >= goals.steps && state.totals.calories >= goals.calories && state.totals.water >= goals.water
+    val overall = ((goals.progress(state.totals.steps, goals.steps) + goals.progress(state.totals.calories, goals.calories) + goals.progress(state.totals.water, goals.water)) / 3f)
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = BrandIndigo, contentColor = Color.White),
         ) {
-            Column(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(BrandIndigo, Color(0xFF174D5B)))).padding(24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.CalendarMonth, null, Modifier.size(18.dp), tint = BrandMint)
-                    Text(displayDate(state.date), style = MaterialTheme.typography.labelLarge, color = BrandMint)
+            Row(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(BrandIndigo, Color(0xFF174D5B)))).padding(24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CalendarMonth, null, Modifier.size(18.dp), tint = BrandMint)
+                        Text(displayDate(state.date), style = MaterialTheme.typography.labelLarge, color = BrandMint)
+                    }
+                    Text("Your day, at a glance", Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineMedium)
+                    AnimatedVisibility(visible = allGoalsMet && !state.loading, enter = fadeIn(tween(240)) + scaleIn(tween(240, easing = FastOutSlowInEasing), initialScale = 0.9f)) {
+                        Text("✨ All goals reached!", style = MaterialTheme.typography.titleMedium, color = BrandMint)
+                    }
+                    AnimatedVisibility(visible = !allGoalsMet || state.loading, enter = fadeIn(tween(240))) {
+                        Text("A daily view of your movement and hydration.", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
-                Text("Your day, at a glance", Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineMedium)
-                Text("A daily view of your movement and hydration.", style = MaterialTheme.typography.bodyMedium)
+                OverallRing(overall, Modifier.semantics { contentDescription = "${(overall * 100).toInt()} percent of daily goals" })
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(Icons.Default.WaterDrop, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+            Text("Log water", Modifier.weight(1f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            listOf(250, 500, 1000).forEach { amount ->
+                FilledTonalButton(onClick = { onQuickAddWater(amount) }, enabled = !state.loading, contentPadding = PaddingValues(horizontal = 12.dp)) {
+                    Text("+$amount")
+                }
             }
         }
         if (streak > 0) AssistChip(
@@ -87,45 +121,66 @@ fun DashboardScreen(
             state.loading -> CircularProgressIndicator(Modifier.padding(24.dp))
             state.error != null -> ErrorPanel(state.error, retry)
             else -> {
-                val colors = MaterialTheme.colorScheme
                 MetricCard("Steps walked", state.totals.steps, goals.steps, goals.progress(state.totals.steps, goals.steps),
-                    "steps", Icons.AutoMirrored.Filled.DirectionsWalk, colors.primary, colors.primaryContainer, colors.onPrimaryContainer)
+                    "steps", Icons.AutoMirrored.Filled.DirectionsWalk, StepsGradient)
                 MetricCard("Calories burned", state.totals.calories, goals.calories, goals.progress(state.totals.calories, goals.calories),
-                    "kcal", Icons.Default.LocalFireDepartment, colors.error, colors.errorContainer, colors.onErrorContainer)
+                    "kcal", Icons.Default.LocalFireDepartment, CaloriesGradient)
                 MetricCard("Water intake", state.totals.water, goals.water, goals.progress(state.totals.water, goals.water),
-                    "ml", Icons.Default.WaterDrop, colors.secondary, colors.secondaryContainer, colors.onSecondaryContainer)
+                    "ml", Icons.Default.WaterDrop, WaterGradient)
             }
         }
     }
 }
 
 @Composable
+private fun OverallRing(progress: Float, modifier: Modifier = Modifier) {
+    val animated by animateFloatAsState(progress, tween(360), label = "Overall progress")
+    Box(modifier.size(64.dp), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val stroke = 6.dp.toPx()
+            val arcSize = Size(size.width - stroke, size.height - stroke)
+            val topLeft = Offset(stroke / 2, stroke / 2)
+            drawArc(Color.White.copy(alpha = 0.3f), 0f, 360f, false, topLeft = topLeft, size = arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+            drawArc(BrandMint, -90f, 360f * animated, false, topLeft = topLeft, size = arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+        }
+        Text("${(progress * 100).toInt()}%", style = MaterialTheme.typography.titleMedium, color = Color.White)
+    }
+}
+
+@Composable
 private fun MetricCard(
     title: String, value: Long, goal: Int, progress: Float, unit: String, icon: ImageVector,
-    tint: Color, iconBackground: Color, iconTint: Color,
+    gradient: List<Color>,
 ) {
     val animatedProgress by animateFloatAsState(progress, tween(360), label = "Goal progress")
-    OutlinedCard(
+    val countUp = remember { Animatable(0f) }
+    LaunchedEffect(value) { countUp.animateTo(value.toFloat(), tween(600, easing = FastOutSlowInEasing)) }
+    // Show the exact target once the animation settles so very large sums stay precise.
+    val displayed = if (countUp.isRunning) countUp.value.toLong() else value
+    Card(
         Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
     ) {
-        Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
-            Box(
-                Modifier.size(44.dp).background(iconBackground, RoundedCornerShape(14.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(icon, null, Modifier.size(23.dp), tint = iconTint)
-            }
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("${number(value)} $unit", style = MaterialTheme.typography.headlineMedium)
-                Spacer(Modifier.height(8.dp))
-                LinearProgressIndicator(progress = { animatedProgress }, modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)), color = tint,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh)
-                Spacer(Modifier.height(5.dp))
-                Text("${(progress * 100).toInt()}% of ${number(goal.toLong())} $unit goal" + if (value >= goal) " · Goal reached" else "",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(Modifier.fillMaxWidth().background(Brush.verticalGradient(gradient))) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+                    Box(
+                        Modifier.size(44.dp).background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(14.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(icon, null, Modifier.size(23.dp), tint = Color.White)
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(title, style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.85f))
+                        Text("${number(displayed)} $unit", style = MaterialTheme.typography.headlineMedium, color = Color.White)
+                        Spacer(Modifier.height(8.dp))
+                        LinearProgressIndicator(progress = { animatedProgress }, modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)), color = Color.White,
+                            trackColor = Color.White.copy(alpha = 0.3f))
+                        Spacer(Modifier.height(5.dp))
+                        Text("${(progress * 100).toInt()}% of ${number(goal.toLong())} $unit goal" + if (value >= goal) " · Goal reached" else "",
+                            style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.85f))
+                    }
+                }
             }
         }
     }
