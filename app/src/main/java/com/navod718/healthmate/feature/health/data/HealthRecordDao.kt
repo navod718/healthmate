@@ -22,6 +22,9 @@ interface HealthRecordDao {
     @Query("SELECT * FROM health_records WHERE (:date IS NULL OR date = :date) ORDER BY date DESC, id DESC")
     fun observeRecords(date: String?): Flow<List<HealthRecord>>
 
+    @Query("SELECT date, COALESCE(SUM(steps), 0) AS steps, COALESCE(SUM(calories), 0) AS calories, COALESCE(SUM(water), 0) AS water FROM health_records GROUP BY date ORDER BY date DESC")
+    fun observeDailyBreakdown(): Flow<List<DailyBreakdown>>
+
     @Query("SELECT COUNT(*) FROM health_records")
     fun observeCount(): Flow<Int>
 
