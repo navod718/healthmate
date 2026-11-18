@@ -24,6 +24,7 @@ class RecordsViewModelTest {
         var failDelete = false
         var failGoalsRead = false
         var goalsReads = 0
+        var failBreakdown = false
         val savedGoals = MutableStateFlow<DailyGoals?>(null)
         var filteredReadGate: CompletableDeferred<Unit>? = null
         override fun observeTotals(date: String) = entry.map { if (it?.date == date) DailyTotals(it.steps.toLong(), it.calories.toLong(), it.water.toLong()) else DailyTotals() }
@@ -39,6 +40,10 @@ class RecordsViewModelTest {
             emitAll(entry.map { if (it != null && (date == null || it.date == date)) listOf(it) else emptyList() })
         }
         override fun observeCount() = entry.map { if (it == null) 0 else 1 }
+        override fun observeDailyBreakdown(): Flow<List<DailyBreakdown>> = flow {
+            if (failBreakdown) error("Simulated breakdown read failure")
+            emitAll(entry.map { if (it == null) emptyList() else listOf(DailyBreakdown(it.date, it.steps.toLong(), it.calories.toLong(), it.water.toLong())) })
+        }
         override suspend fun count() = if (entry.value == null) 0 else 1
         override suspend fun find(id: Long) = entry.value?.takeIf { it.id == id }
         override suspend fun update(record: HealthRecord): Int {
@@ -210,5 +215,32 @@ class RecordsViewModelTest {
         assertEquals(yesterday, model.records.value.date)
         assertFalse(model.records.value.loading)
         assertTrue(model.records.value.records.isEmpty())
+    }
+
+    @Test fun insightsDeriveStreaksAndAchievementsFromRecords() = runTest {
+        val model = model()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.insights.collect() }
+        runCurrent()
+        assertFalse(model.insights.value.loading)
+        assertNull(model.insights.value.error)
+        assertEquals(1, model.insights.value.breakdown.size)
+        assertEquals(0, model.insights.value.streak)
+        assertTrue(model.insights.value.achievements.first { it.id == "first-record" }.unlocked)
+        assertFalse(model.insights.value.achievements.first { it.id == "perfect-day" }.unlocked)
+    }
+
+    @Test fun insightsErrorRecoversWithRetry() = runTest {
+        val model = model()
+        dao.failBreakdown = true
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.insights.collect() }
+        runCurrent()
+        assertEquals("Could not load insights. Please retry.", model.insights.value.error)
+        assertTrue(model.insights.value.breakdown.isEmpty())
+        dao.failBreakdown = false
+        model.retry()
+        runCurrent()
+        assertNull(model.insights.value.error)
+        assertFalse(model.insights.value.loading)
+        assertEquals(1, model.insights.value.breakdown.size)
     }
 }

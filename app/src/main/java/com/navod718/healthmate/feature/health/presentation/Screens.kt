@@ -45,7 +45,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 internal fun displayDate(date: String): String = LocalDate.parse(date).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-private fun number(value: Long) = NumberFormat.getIntegerInstance().format(value)
+internal fun number(value: Long) = NumberFormat.getIntegerInstance().format(value)
 
 @Composable
 fun DashboardScreen(
@@ -54,6 +54,8 @@ fun DashboardScreen(
     goals: DailyGoals,
     goalsLoadFailed: Boolean,
     retryGoals: () -> Unit,
+    streak: Int = 0,
+    onOpenInsights: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -71,6 +73,11 @@ fun DashboardScreen(
                 Text("A daily view of your movement and hydration.", style = MaterialTheme.typography.bodyMedium)
             }
         }
+        if (streak > 0) AssistChip(
+            onClick = onOpenInsights,
+            label = { Text("$streak-day goal streak") },
+            leadingIcon = { Icon(Icons.Default.Whatshot, null, Modifier.size(18.dp)) },
+        )
         Text("Daily activity", style = MaterialTheme.typography.titleLarge)
         if (goalsLoadFailed) {
             Text("Saved goals could not be refreshed. Showing the last available targets.", color = MaterialTheme.colorScheme.error)

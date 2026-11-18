@@ -44,6 +44,18 @@ class RecordsDatabaseTest {
         assertFalse(repository.update(second, RecordInput(today, "1", "1", "1")))
         assertEquals(2, dao.count())
     }
+    @Test fun dailyBreakdownSumsRecordsPerDateInDescendingOrder() = runBlocking {
+        val dao = db.records()
+        val today = LocalDate.now().toString()
+        val yesterday = LocalDate.now().minusDays(1).toString()
+        dao.insert(HealthRecord(date = today, steps = 1000, calories = 50, water = 500))
+        dao.insert(HealthRecord(date = today, steps = 500, calories = 25, water = 250))
+        dao.insert(HealthRecord(date = yesterday, steps = 100, calories = 5, water = 50))
+        assertEquals(
+            listOf(DailyBreakdown(today, 1500, 75, 750), DailyBreakdown(yesterday, 100, 5, 50)),
+            dao.observeDailyBreakdown().first(),
+        )
+    }
     @Test fun concurrentSampleRequestsOnlyPopulateAnEmptyDatabaseOnce() = runBlocking {
         val repository = HealthRepository(db.records())
         val results = listOf(async(Dispatchers.IO) { repository.loadSamples() }, async(Dispatchers.IO) { repository.loadSamples() }).awaitAll()

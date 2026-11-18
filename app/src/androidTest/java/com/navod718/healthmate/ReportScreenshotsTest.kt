@@ -94,5 +94,10 @@ class ReportScreenshotsTest {
         compose.onNodeWithText("Dashboard").performClick()
         compose.onNodeWithContentDescription("Daily goals").performClick()
         capture("08-goals")
+        compose.runOnIdle { model.closeGoals() }
+        compose.onNodeWithText("Insights").performClick()
+        compose.waitUntil(10_000) { !model.insights.value.loading }
+        compose.waitForIdle()
+        capture("10-insights")
     }
 }

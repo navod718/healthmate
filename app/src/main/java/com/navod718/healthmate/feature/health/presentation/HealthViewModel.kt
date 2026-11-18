@@ -3,6 +3,8 @@ package com.navod718.healthmate.feature.health.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.navod718.healthmate.core.insights.Achievement
+import com.navod718.healthmate.core.insights.Insights
 import com.navod718.healthmate.core.validation.RecordInput
 import com.navod718.healthmate.core.validation.RecordValidator
 import com.navod718.healthmate.feature.health.data.*
@@ -15,6 +17,14 @@ import kotlinx.coroutines.launch
 data class RecordsState(val date: String?, val loading: Boolean = true, val records: List<HealthRecord> = emptyList(), val totalCount: Int = 0, val error: String? = null)
 data class TotalsState(val date: String, val loading: Boolean = true, val totals: DailyTotals = DailyTotals(), val error: String? = null)
 data class GoalsState(val value: DailyGoals = DailyGoals(), val loadFailed: Boolean = false)
+data class InsightsState(
+    val loading: Boolean = true,
+    val breakdown: List<DailyBreakdown> = emptyList(),
+    val streak: Int = 0,
+    val bestStreak: Int = 0,
+    val achievements: List<Achievement> = emptyList(),
+    val error: String? = null,
+)
 data class EditorState(
     val open: Boolean = false,
     val input: RecordInput = RecordInput(), val original: RecordInput = input, val errors: Map<String, String> = emptyMap(),
@@ -91,7 +101,7 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     init { if (_editor.value.loading) _editor.value.id?.let(::loadEdit) }
 
     fun selectTab(value: String) {
-        if (!_editor.value.open && value in listOf("dashboard", "records")) {
+        if (!_editor.value.open && value in listOf("dashboard", "insights", "records")) {
             _tab.value = value; savedState["tab"] = value
         }
     }
@@ -165,6 +175,18 @@ class HealthViewModel(private val repository: HealthRepository, private val save
             .onStart { emit(TotalsState(date)) }
             .catch { if (it is CancellationException) throw it; emit(TotalsState(date, loading = false, error = "Could not load today's totals. Please retry.")) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState(_today.value))
+
+    val insights = combine(_today, retry) { date, _ -> date }.flatMapLatest { today ->
+        combine(repository.observeDailyBreakdown(), repository.observeGoals(), repository.observeCount()) { days, goals, count ->
+            InsightsState(
+                loading = false, breakdown = days,
+                streak = Insights.currentStreak(days, goals, LocalDate.parse(today)),
+                bestStreak = Insights.bestStreak(days, goals),
+                achievements = Insights.achievements(days, goals, count),
+            )
+        }.onStart { emit(InsightsState()) }
+            .catch { if (it is CancellationException) throw it; emit(InsightsState(loading = false, error = "Could not load insights. Please retry.")) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsState())
 
     fun refreshToday() { _today.value = LocalDate.now().toString() }
     fun retry() { retry.value++ }

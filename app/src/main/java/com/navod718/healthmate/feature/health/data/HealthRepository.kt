@@ -16,6 +16,7 @@ class HealthRepository(private val dao: HealthRecordDao) {
 
     fun observeRecords(date: String?) = dao.observeRecords(date)
     fun observeCount() = dao.observeCount()
+    fun observeDailyBreakdown() = dao.observeDailyBreakdown()
     suspend fun find(id: Long) = dao.find(id)
     suspend fun update(id: Long, input: RecordInput): Boolean {
         require(id > 0)
