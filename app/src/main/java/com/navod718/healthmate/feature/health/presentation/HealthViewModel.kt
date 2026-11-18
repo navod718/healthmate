@@ -189,6 +189,19 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsState())
 
     fun refreshToday() { _today.value = LocalDate.now().toString() }
+    fun quickAddWater(amount: Int) {
+        if (_busy.value || amount <= 0) return
+        _busy.value = true
+        viewModelScope.launch {
+            try {
+                repository.add(RecordInput(date = LocalDate.now().toString(), steps = "0", calories = "0", water = amount.toString()))
+                _message.value = "Added $amount ml water."
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _message.value = "Could not add water. Please try again."
+            } finally { _busy.value = false }
+        }
+    }
     fun retry() { retry.value++ }
     fun retryGoals() { goalsRefresh.value++ }
     fun clearMessage() { _message.value = null }

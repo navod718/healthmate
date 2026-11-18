@@ -93,4 +93,12 @@ class HealthMateUiTest {
         compose.waitUntil(10_000) { compose.onAllNodesWithText("0% of 1,000 ml goal").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("0% of 1,000 ml goal").performScrollTo().assertIsDisplayed()
     }
+    @Test fun quickAddWaterChipsIncreaseTodaysTotals() {
+        compose.waitUntil(10_000) { !model.totals.value.loading }
+        compose.onNodeWithText("+250").performClick()
+        compose.waitUntil(10_000) { model.totals.value.totals.water == 250L }
+        compose.onNodeWithText("+500").performScrollTo().performClick()
+        compose.waitUntil(10_000) { model.totals.value.totals.water == 750L }
+        assertTrue(runBlocking { database.records().observeTotals(LocalDate.now().toString()).first().water == 750L })
+    }
 }

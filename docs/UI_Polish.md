@@ -18,3 +18,12 @@ The dashboard storage note is placed in the measured bottom area so it stays rea
 - A date filter with no matches now shows "No records found" with the formatted date and a Clear filter button instead of the plain empty card.
 
 Record storage, validation and goals keep their existing contracts and no database migration is needed: trends, streaks and achievements are derived from a per-day aggregation of existing records. Version 0.2.0 (code 3) keeps the 0.1.1 labels plus the additions above.
+
+# HealthMate 0.2.1 Dashboard redesign
+
+- Header card: an animated overall-goal ring (mean of the three goal fractions) sits beside the title, and "✨ All goals reached!" fades in when every goal is met.
+- Metric cards: bold vertical gradients (teal-indigo steps, burnt-orange calories, cyan water) with white text, white progress tracks and icons on translucent tiles.
+- Count-up: metric numbers animate from the previous value over 600 ms and settle on the exact total.
+- Quick-add: a "Log water" row with +250/+500/+1,000 buttons writes water-only records for today through the existing validated repository path.
+
+Labels and captions ("750 ml", "52% of 400 kcal goal", the storage note) keep their existing contracts so tests and the report stay valid. Version 0.2.1 (code 4).
