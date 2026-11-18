@@ -25,6 +25,8 @@ class RecordsViewModelTest {
         var failGoalsRead = false
         var goalsReads = 0
         var failBreakdown = false
+        var failInsert = false
+        var lastInserted: HealthRecord? = null
         val savedGoals = MutableStateFlow<DailyGoals?>(null)
         var filteredReadGate: CompletableDeferred<Unit>? = null
         override fun observeTotals(date: String) = entry.map { if (it?.date == date) DailyTotals(it.steps.toLong(), it.calories.toLong(), it.water.toLong()) else DailyTotals() }
@@ -34,7 +36,11 @@ class RecordsViewModelTest {
             emitAll(savedGoals)
         }
         override suspend fun saveGoals(goals: DailyGoals) { savedGoals.value = goals }
-        override suspend fun insert(record: HealthRecord): Long { inserts++; return 8L }
+        override suspend fun insert(record: HealthRecord): Long {
+            inserts++
+            if (failInsert) error("Simulated insert failure")
+            lastInserted = record; return 8L
+        }
         override fun observeRecords(date: String?) = flow {
             if (date != null) filteredReadGate?.await()
             emitAll(entry.map { if (it != null && (date == null || it.date == date)) listOf(it) else emptyList() })
@@ -229,6 +235,27 @@ class RecordsViewModelTest {
         assertFalse(model.insights.value.achievements.first { it.id == "perfect-day" }.unlocked)
     }
 
+    @Test fun quickAddWaterInsertsAWaterOnlyRecordForToday() {
+        val model = model()
+        model.quickAddWater(250)
+        assertEquals(1, dao.inserts)
+        assertEquals(250, dao.lastInserted?.water)
+        assertEquals(0, dao.lastInserted?.steps)
+        assertEquals(0, dao.lastInserted?.calories)
+        assertEquals(LocalDate.now().toString(), dao.lastInserted?.date)
+        assertEquals("Added 250 ml water.", model.message.value)
+        assertFalse(model.busy.value)
+        assertFalse(model.editor.value.open)
+    }
+    @Test fun quickAddWaterReportsFailureAndReleasesBusy() {
+        val model = model()
+        dao.failInsert = true
+        model.quickAddWater(500)
+        assertEquals(1, dao.inserts)
+        assertNull(dao.lastInserted)
+        assertEquals("Could not add water. Please try again.", model.message.value)
+        assertFalse(model.busy.value)
+    }
     @Test fun insightsErrorRecoversWithRetry() = runTest {
         val model = model()
         dao.failBreakdown = true
