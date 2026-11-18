@@ -7,7 +7,8 @@ Project contact: **Navod Daham (Navod)** — Kingston ID **K2635839**.
 ## Features
 
 - View today's activity totals and progress toward editable daily goals.
-- Add, edit and delete records, and filter history by date. Changed drafts prompt for confirmation before dismissal.
+- Review weekly and monthly trends, a goal streak and achievements on a dedicated Insights tab.
+- Add, edit and delete records, and filter history by date. A filtered history with no matches names the date and offers to clear the filter. Changed drafts prompt for confirmation before dismissal.
 - Load four optional sample records into an empty history for a demonstration.
 
 ## Architecture
@@ -18,7 +19,7 @@ The app uses Kotlin, Jetpack Compose and Material 3. Its MVVM structure separate
 Compose screens → HealthViewModel → HealthRepository → HealthRecordDao → Room / SQLite
 ```
 
-Room schema version 2 contains `health_records` and `daily_goals`. The explicit migration from version 1 adds goals while preserving existing health records. Exported schemas are in [app/schemas](app/schemas).
+Room schema version 2 contains `health_records` and `daily_goals`. The explicit migration from version 1 adds goals while preserving existing health records. Exported schemas are in [app/schemas](app/schemas). Insights derive trends, streaks and achievements from a per-day SQL aggregation of existing records, so no additional schema change is needed.
 
 ## Build and test
 
