@@ -90,6 +90,17 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     val deleteError = _deleteError.asStateFlow()
     private val _samplesOpen = MutableStateFlow(false)
     val samplesOpen = _samplesOpen.asStateFlow()
+    private val _searchOpen = MutableStateFlow(false)
+    val searchOpen = _searchOpen.asStateFlow()
+    private val _searchDate = MutableStateFlow<String?>(null)
+    val searchDate = _searchDate.asStateFlow()
+    private val _searchQuery = MutableStateFlow<String?>(null)
+    val searchQuery = _searchQuery.asStateFlow()
+    val searchResults = _searchQuery.filterNotNull().flatMapLatest { date ->
+        repository.observeRecords(date)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    private val _viewDate = MutableStateFlow(savedState.get<String>("viewDate"))
+    val viewDate = _viewDate.asStateFlow()
 
     val records = combine(_filter, retry) { date, _ -> date }.flatMapLatest { date ->
         combine(repository.observeRecords(date), repository.observeCount()) { entries, count ->
@@ -170,11 +181,11 @@ class HealthViewModel(private val repository: HealthRepository, private val save
         }
     }
 
-    val totals = combine(_today, retry) { date, _ -> date }.flatMapLatest { date ->
+    val totals = combine(_today, _viewDate, retry) { today, view, _ -> view ?: today }.flatMapLatest { date ->
         repository.observeTotals(date).map { TotalsState(date, loading = false, totals = it) }
             .onStart { emit(TotalsState(date)) }
             .catch { if (it is CancellationException) throw it; emit(TotalsState(date, loading = false, error = "Could not load today's totals. Please retry.")) }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState(_today.value))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TotalsState(_viewDate.value ?: _today.value))
 
     val insights = combine(_today, retry) { date, _ -> date }.flatMapLatest { today ->
         combine(repository.observeDailyBreakdown(), repository.observeGoals(), repository.observeCount()) { days, goals, count ->
@@ -189,6 +200,24 @@ class HealthViewModel(private val repository: HealthRepository, private val save
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsState())
 
     fun refreshToday() { _today.value = LocalDate.now().toString() }
+    fun viewDate(date: String) {
+        _viewDate.value = date; savedState["viewDate"] = date
+    }
+    fun clearViewDate() {
+        _viewDate.value = null; savedState["viewDate"] = null
+    }
+    fun openSearch() { if (!_busy.value) _searchOpen.value = true }
+    fun closeSearch() { if (!_busy.value) { _searchOpen.value = false; _searchDate.value = null; _searchQuery.value = null } }
+    fun pickSearchDate(value: String) { _searchDate.value = value }
+    fun submitSearch() {
+        val date = _searchDate.value ?: return
+        _searchQuery.value = date
+    }
+    fun showAllRecords() {
+        if (_busy.value) return
+        _searchOpen.value = false; _searchDate.value = null; _searchQuery.value = null
+        selectTab("records"); filterByDate(null)
+    }
     fun quickAddWater(amount: Int) {
         if (_busy.value || amount <= 0) return
         _busy.value = true
