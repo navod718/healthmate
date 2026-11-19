@@ -4,7 +4,7 @@ Use your own voice. Practise the steps before recording and adapt these suggeste
 
 ## 1. Prepare on your Mac
 
-Download `releases/HealthMate-0.1.1-release.apk` and drag it onto the running Android Studio emulator. If Android reports a signature conflict with a debug installation, preserve any records you need before uninstalling the old app: uninstalling removes its local data. Use the installed signed release for the demonstration.
+Download `releases/HealthMate-0.3.0-release.apk` and drag it onto the running Android Studio emulator. The 0.3.0 release is signed with a new key, so any previously installed 0.1.x release or debug build must be uninstalled first; uninstalling removes its local data. Use the installed signed release for the demonstration.
 
 Open HealthMate, close distracting windows and notifications, and choose a readable emulator size. Press Shift–Command–5, select a recording area around the emulator, and use Options to select your microphone. Make a short test recording and listen to it before recording the full demonstration. Stop using the menu-bar recording button.
 
@@ -14,7 +14,7 @@ Open HealthMate, close distracting windows and notifications, and choose a reada
 
 “My name is Navod Daham, Kingston ID K2635839. This is HealthMate, an Android health and wellness tracker built with Kotlin, Jetpack Compose and Room. It lets users manually record steps, calories burned and water intake. Records stay on the device.”
 
-Show the dashboard. Explain that totals refer to today's date and progress compares the totals with editable goals. These are manual entries, not measurements taken from a step sensor.
+Show the dashboard. Explain that the ring shows overall progress toward the three goals and that totals refer to today's date unless another day is selected. These are manual entries, not measurements taken from a step sensor.
 
 ### Validation and adding records — about 50 seconds
 
@@ -22,27 +22,37 @@ Tap Add record. Try saving empty fields, then enter zero in all three fields and
 
 “The form validates the date and whole-number fields. At least one activity value must be greater than zero. After saving a valid record, the dashboard updates from the stored data.”
 
-Add another record for today with 300 steps, 20 calories and 250 ml. Show totals of 1500 steps, 80 kcal and 750 ml. If the app already contains other records, use your actual totals instead of claiming these exact numbers.
+Add another record for today with 300 steps, 20 calories and 250 ml. Show totals of 1500 steps, 80 kcal and 750 ml, and the metric cards animating as they update. If the app already contains other records, use your actual totals instead of claiming these exact numbers.
 
-### History, editing and deletion — about 60 seconds
+### Water quick-add and goals — about 40 seconds
 
-Open Records. Choose today's date to filter the list. Edit the second entry, changing water from 250 to 500 ml. Save and show the update. Return to the dashboard: with only those two records, water now totals 1000 ml.
+On the dashboard, tap the +250 water button and show the total rise and the confirmation message.
 
-“History supports date filtering and editing. Updating a stored entry also updates the daily totals.”
+“Quick-add buttons write a real water record for today through the same validated path as the full form.”
 
-Request deletion of the second entry. Show the confirmation, cancel once to demonstrate that the record remains, then confirm deletion. The remaining totals should match the first entry.
+Open daily goals and change the water goal to 2500 ml. Save and show the progress update. If all three goals were met in your recording, point out the “All goals reached” message; otherwise mention it appears when every goal is met.
 
-“Deletion requires confirmation. Cancelling keeps the record. Confirming removes it and refreshes the totals.”
+### Search by date — about 40 seconds
 
-### Goals and persistence — about 40 seconds
+Tap the search icon in the top bar. Choose a date that has records, tap Search records, and show the “Daily health record” cards with their steps, calories and water values, plus the Daily total card when a date holds several entries. Tap Edit on a result, change a value, and save; then show Delete and its confirmation. Tap Show all records to land on the history list. Return to the dashboard, tap “View another day”, choose a past date, and show the cards switching to that day; tap the “Viewing” chip to return to today.
 
-Open daily goals and change the water goal to 2500 ml. Save and show the progress update. Close and reopen the app to show that the saved record and goal remain.
+“The search screen reads stored records by date, and the dashboard can display any chosen day. Both reuse the same editing and deletion flows as the history list.”
 
-“Goals can be changed without changing the activity records. Room stores records and goals in a local SQLite database, so saved data remains after the app is reopened.”
+### History and persistence — about 40 seconds
+
+Open Records. Choose today's date to filter the list and show the filtered result. Close and reopen the app to show that the saved records and goals remain.
+
+“History supports date filtering. Room stores records and goals in a local SQLite database, so saved data remains after the app is reopened.”
+
+### Insights — about 30 seconds
+
+Open the Insights tab. Show the trend chart, switch between steps, calories and water, and between 7 and 30 days. Show the goal streak card and the achievements grid.
+
+“Insights are derived from a per-day aggregation of the stored records, with no extra tables. The streak counts a day only when every goal is met.”
 
 ### Architecture and closing — about 30 seconds
 
-“The Compose screens render state from HealthViewModel. The ViewModel calls HealthRepository, which validates writes and accesses the Room DAO. Room queries provide reactive updates to the screens. The project includes JVM validation and state tests, plus Android database and interface tests. The source and report identify AI assistance used during development.”
+“The Compose screens render state from HealthViewModel. The ViewModel calls HealthRepository, which validates writes and accesses the Room DAO. Room queries provide reactive updates to the screens. The project includes JVM validation, state and insights tests, plus Android database and interface tests. The source and report identify AI assistance used during development.”
 
 Finish by briefly showing the dashboard and stating one real limitation you understand, such as manual activity entry or the absence of cloud backup. This script is guidance; explain the implementation in words you can defend in the viva.
 
