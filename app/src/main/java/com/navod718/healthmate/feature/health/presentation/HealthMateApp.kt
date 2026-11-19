@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +36,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.navod718.healthmate.ui.theme.HealthMateMark
 import kotlinx.coroutines.delay
 
-private enum class HealthScreen { Dashboard, Insights, Records, Editor }
+private enum class HealthScreen { Dashboard, Insights, Records, Editor, Search }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,9 +55,15 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
     val samplesOpen by model.samplesOpen.collectAsStateWithLifecycle()
     val insights by model.insights.collectAsStateWithLifecycle()
     val today by model.today.collectAsStateWithLifecycle()
+    val searchOpen by model.searchOpen.collectAsStateWithLifecycle()
+    val searchDate by model.searchDate.collectAsStateWithLifecycle()
+    val searchQuery by model.searchQuery.collectAsStateWithLifecycle()
+    val searchResults by model.searchResults.collectAsStateWithLifecycle()
+    val viewDate by model.viewDate.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val screen = when {
         editor.open -> HealthScreen.Editor
+        searchOpen -> HealthScreen.Search
         tab == "records" -> HealthScreen.Records
         tab == "insights" -> HealthScreen.Insights
         else -> HealthScreen.Dashboard
@@ -80,12 +87,15 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
     BackHandler(!editor.open && tab == "records") { model.selectTab("insights") }
     BackHandler(!editor.open && tab == "insights") { model.selectTab("dashboard") }
     BackHandler(editor.open) { model.closeEditor() }
+    BackHandler(searchOpen && !editor.open) { model.closeSearch() }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(title = {
                 if (editor.open) {
                     Text(if (editor.id == null) "Add record" else "Edit record")
+                } else if (searchOpen) {
+                    Text("Search records")
                 } else {
                     AnimatedVisibility(
                         visibleState = brandVisibility,
@@ -102,15 +112,22 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                 navigationIcon = {
                     if (editor.open) IconButton(onClick = model::closeEditor, enabled = !busy) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                    } else if (searchOpen) IconButton(onClick = model::closeSearch, enabled = !busy) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }, actions = {
-                    if (!editor.open) IconButton(onClick = model::openGoals, enabled = !busy) {
-                        Icon(Icons.Default.Flag, "Daily goals")
+                    if (!editor.open && !searchOpen) {
+                        IconButton(onClick = model::openSearch, enabled = !busy) {
+                            Icon(Icons.Default.Search, "Search records")
+                        }
+                        IconButton(onClick = model::openGoals, enabled = !busy) {
+                            Icon(Icons.Default.Flag, "Daily goals")
+                        }
                     }
                 })
         },
         bottomBar = {
-            if (!editor.open) Column {
+            if (!editor.open && !searchOpen) Column {
                 if (screen == HealthScreen.Dashboard) {
                     Text(
                         "Daily totals · Stored on this device.",
@@ -150,6 +167,8 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                 val slide = when {
                     targetState == HealthScreen.Editor -> slideInVertically(tween(240)) { it / 24 }
                     initialState == HealthScreen.Editor -> slideInVertically(tween(200)) { -it / 64 }
+                    targetState == HealthScreen.Search -> slideInVertically(tween(240)) { it / 24 }
+                    initialState == HealthScreen.Search -> slideInVertically(tween(200)) { -it / 64 }
                     else -> {
                         val order = listOf(HealthScreen.Dashboard, HealthScreen.Insights, HealthScreen.Records)
                         val direction = if (order.indexOf(targetState) > order.indexOf(initialState)) horizontalDirection else -horizontalDirection
@@ -166,9 +185,10 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                     val page = Modifier.widthIn(max = 640.dp).fillMaxWidth()
                     when (destination) {
                         HealthScreen.Editor -> RecordForm(editor, busy, model::change, model::save, page)
+                        HealthScreen.Search -> SearchScreen(searchDate, searchQuery, searchResults, busy, model::pickSearchDate, model::submitSearch, model::showAllRecords, model::edit, model::requestDelete, page)
                         HealthScreen.Records -> RecordsScreen(records, busy, model::filterByDate, model::edit, model::requestDelete, model::openSamples, model::retry, page)
                         HealthScreen.Insights -> InsightsScreen(insights, goals.value, today, model::retry, page)
-                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, streak = insights.streak, onOpenInsights = { model.selectTab("insights") }, onQuickAddWater = model::quickAddWater, modifier = page)
+                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, streak = insights.streak, onOpenInsights = { model.selectTab("insights") }, onQuickAddWater = model::quickAddWater, viewingDate = viewDate, onClearViewDate = model::clearViewDate, modifier = page)
                     }
                 }
             }

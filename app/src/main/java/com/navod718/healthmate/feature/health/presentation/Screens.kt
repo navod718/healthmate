@@ -71,6 +71,8 @@ fun DashboardScreen(
     streak: Int = 0,
     onOpenInsights: () -> Unit = {},
     onQuickAddWater: (Int) -> Unit = {},
+    viewingDate: String? = null,
+    onClearViewDate: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val allGoalsMet = state.totals.steps >= goals.steps && state.totals.calories >= goals.calories && state.totals.water >= goals.water
@@ -98,6 +100,14 @@ fun DashboardScreen(
                 OverallRing(overall, Modifier.semantics { contentDescription = "${(overall * 100).toInt()} percent of daily goals" })
             }
         }
+        if (viewingDate != null) AssistChip(
+            onClick = onClearViewDate,
+            label = { Text("Viewing ${displayDate(viewingDate)}") },
+            trailingIcon = {
+                Icon(Icons.Default.Close, "Show today", Modifier.size(18.dp))
+            },
+            modifier = Modifier.testTag("view-date-chip"),
+        )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Default.WaterDrop, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
             Text("Log water", Modifier.weight(1f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
