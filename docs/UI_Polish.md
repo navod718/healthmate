@@ -27,3 +27,11 @@ Record storage, validation and goals keep their existing contracts and no databa
 - Quick-add: a "Log water" row with +250/+500/+1,000 buttons writes water-only records for today through the existing validated repository path.
 
 Labels and captions ("750 ml", "52% of 400 kcal goal", the storage note) keep their existing contracts so tests and the report stay valid. Version 0.2.1 (code 4).
+
+# HealthMate 0.3.0 Search by date
+
+- New search screen, opened from a top-bar search icon on the Dashboard and Records screens: a date field that opens the calendar picker, full-width "Search records" and "Show all records" buttons.
+- Results reuse the established empty state ("No records found" naming the date) and show "Daily health record" cards with right-aligned Steps/Calories/Water rows, a "Daily total" summary card when a date holds several records, and Edit/Delete actions sharing the existing editor and delete-confirmation flows.
+- The dashboard gains a "Viewing {date}" chip: picking a day switches the header, ring and metric cards to that day, and tapping the chip returns to today. The choice survives process recreation through SavedStateHandle.
+
+No database change is needed: search reads the existing per-date queries. Version 0.3.0 (code 5).
