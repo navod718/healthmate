@@ -1,6 +1,8 @@
 {
-  "jvm": 19,
-  "device": 18,
+  "jvm": 31,
+  "device": 27,
+  "jvm_failures": 0,
+  "device_failures": 0,
   "jvm_cases": [
     {
       "class": "com.navod718.healthmate.DraftAndGoalsTest",
@@ -14,27 +16,42 @@
     },
     {
       "class": "com.navod718.healthmate.DraftAndGoalsTest",
-      "name": "goalsArePositiveAndProgressIsCappedWithoutChangingTotals",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.DraftAndGoalsTest",
       "name": "untouchedFormClosesWithoutPrompt",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "futureAndMalformedDatesAreRejected",
+      "class": "com.navod718.healthmate.DraftAndGoalsTest",
+      "name": "goalsArePositiveAndProgressIsCappedWithoutChangingTotals",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "missingFieldsAreRejected",
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "aDayCountsOnlyWhenEveryGoalIsMet",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.RecordValidatorTest",
-      "name": "negativeDecimalTextAndOverflowAreRejected",
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "aGapEndsTheCurrentStreak",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "bestStreakKeepsTheLongestRunAcrossGaps",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "streakCountsConsecutiveCompleteDaysEndingToday",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "anIncompleteTodayDoesNotBreakTheStreak",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsTest",
+      "name": "achievementsUnlockAtTheirThresholds",
       "passed": true
     },
     {
@@ -49,7 +66,37 @@
     },
     {
       "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "negativeDecimalTextAndOverflowAreRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "missingFieldsAreRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
       "name": "zeroOnlyEntryIsRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordValidatorTest",
+      "name": "futureAndMalformedDatesAreRejected",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "insightsErrorRecoversWithRetry",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "goalObservationCanRetryAndTracksLaterWrites",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "searchFlowOpensSubmitsShowsAllAndCloses",
       "passed": true
     },
     {
@@ -59,7 +106,32 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "deleteRequiresConfirmationAndFailureCanBeRetried",
+      "name": "savingGoalsRestartsFailedObservation",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "quickAddWaterInsertsAWaterOnlyRecordForToday",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "dashboardViewDateSwitchesTotalsAndRestoresAcrossRecreation",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "quickAddWaterReportsFailureAndReleasesBusy",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "editingUpdatesExistingIdWithoutInsertingAndUntouchedEditCloses",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "insightsDeriveStreaksAndAchievementsFromRecords",
       "passed": true
     },
     {
@@ -74,49 +146,29 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "editingUpdatesExistingIdWithoutInsertingAndUntouchedEditCloses",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "goalObservationCanRetryAndTracksLaterWrites",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsViewModelTest",
       "name": "missingRecordsAreHandledWithoutRecreatingDeletedData",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsViewModelTest",
+      "name": "deleteRequiresConfirmationAndFailureCanBeRetried",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.RecordsViewModelTest",
       "name": "pendingFilterNeverPairsItsDateWithPreviousRows",
       "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.RecordsViewModelTest",
-      "name": "savingGoalsRestartsFailedObservation",
-      "passed": true
     }
   ],
   "device_cases": [
-    {
-      "class": "com.navod718.healthmate.DraftRecreationTest",
-      "name": "activityRecreationPreservesUnsavedFormAndDiscardProtection",
-      "passed": true
-    },
     {
       "class": "com.navod718.healthmate.DraftRecreationTest",
       "name": "datePickerReopensOnActivityRecreationAndReturnsToTheSameDraft",
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.HealthDatabaseTest",
-      "name": "dashboardSumsDoNotOverflowInt",
-      "passed": true
-    },
-    {
-      "class": "com.navod718.healthmate.HealthDatabaseTest",
-      "name": "goalsMigrationKeepsExistingRecordsAndPersistsTargets",
+      "class": "com.navod718.healthmate.DraftRecreationTest",
+      "name": "activityRecreationPreservesUnsavedFormAndDiscardProtection",
       "passed": true
     },
     {
@@ -130,13 +182,18 @@
       "passed": true
     },
     {
-      "class": "com.navod718.healthmate.HealthMateUiTest",
-      "name": "addFormValidatesThenPersistsAndDisplaysRecord",
+      "class": "com.navod718.healthmate.HealthDatabaseTest",
+      "name": "goalsMigrationKeepsExistingRecordsAndPersistsTargets",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.HealthDatabaseTest",
+      "name": "dashboardSumsDoNotOverflowInt",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.HealthMateUiTest",
-      "name": "backFromFormDoesNotSaveAndEmptyDashboardShowsZero",
+      "name": "quickAddWaterChipsIncreaseTodaysTotals",
       "passed": true
     },
     {
@@ -150,8 +207,38 @@
       "passed": true
     },
     {
+      "class": "com.navod718.healthmate.HealthMateUiTest",
+      "name": "addFormValidatesThenPersistsAndDisplaysRecord",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.HealthMateUiTest",
+      "name": "backFromFormDoesNotSaveAndEmptyDashboardShowsZero",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsUiTest",
+      "name": "insightsMetricAndRangeChipsStayRendered",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsUiTest",
+      "name": "insightsShowsEmptyStateWithoutRecords",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.InsightsUiTest",
+      "name": "insightsShowsTrendStreakAndAchievementsForRecords",
+      "passed": true
+    },
+    {
       "class": "com.navod718.healthmate.RecordsDatabaseTest",
       "name": "concurrentSampleRequestsOnlyPopulateAnEmptyDatabaseOnce",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.RecordsDatabaseTest",
+      "name": "historyFilteringEditsAndDeletionKeepTotalsConsistent",
       "passed": true
     },
     {
@@ -161,12 +248,12 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsDatabaseTest",
-      "name": "historyFilteringEditsAndDeletionKeepTotalsConsistent",
+      "name": "dailyBreakdownSumsRecordsPerDateInDescendingOrder",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.RecordsUiTest",
-      "name": "calendarFilterClearAndNoResultsWorkWithoutOfferingSamplesOverExistingData",
+      "name": "sampleLoadingRequiresConfirmationAndOnlyRunsOnAnEmptyDatabase",
       "passed": true
     },
     {
@@ -176,22 +263,38 @@
     },
     {
       "class": "com.navod718.healthmate.RecordsUiTest",
-      "name": "editChangesTheExistingRecordAndDashboard",
+      "name": "calendarFilterClearAndNoResultsWorkWithoutOfferingSamplesOverExistingData",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.RecordsUiTest",
-      "name": "sampleLoadingRequiresConfirmationAndOnlyRunsOnAnEmptyDatabase",
+      "name": "editChangesTheExistingRecordAndDashboard",
       "passed": true
     },
     {
       "class": "com.navod718.healthmate.ReportScreenshotsTest",
       "name": "captureImplementedScreensWithSyntheticRecords",
       "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.SearchUiTest",
+      "name": "dashboardViewAnotherDayPickerSetsTheViewedDate",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.SearchUiTest",
+      "name": "dashboardViewingChipShowsSelectedDayAndClearsBackToToday",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.SearchUiTest",
+      "name": "searchRequiresADateAndShowsResultsWithEditAndDelete",
+      "passed": true
+    },
+    {
+      "class": "com.navod718.healthmate.SearchUiTest",
+      "name": "searchEmptyStateAppearsForMissingDateAndShowAllOpensRecords",
+      "passed": true
     }
-  ],
-  "status": "success",
-  "run": "43851757024",
-  "app_revision": "877190690be32d8124a36961ac0dc62643a07fad",
-  "capture_revision": "581dd5b21163e2f9b400412d0a766428aa1c6ac7"
+  ]
 }
