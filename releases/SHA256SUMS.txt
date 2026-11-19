@@ -1,2 +1,4 @@
 1a3b8df8f401ded0fb61e5b88c9e58cca76f204b3ec44fbbd051102fe4d87fc7  releases/HealthMate-0.1.0-release.apk
 72f59f59169912f3f9ef58a041cde7d70736beac9ecf53c75ec09facdb8834f4  releases/HealthMate-0.1.1-release.apk
+dd04c7b5d32eefa2d4b86c55bdda12eca64cbc887395ed27716d7200576812ce  releases/HealthMate-0.3.0-release.apk
+b1deeb499c066ae370a4822ba6517e7569e1529d712caad65d58559268632afb  releases/signature-verification.txt
