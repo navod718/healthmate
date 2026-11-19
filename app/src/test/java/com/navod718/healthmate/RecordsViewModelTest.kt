@@ -256,6 +256,48 @@ class RecordsViewModelTest {
         assertEquals("Could not add water. Please try again.", model.message.value)
         assertFalse(model.busy.value)
     }
+    @Test fun searchFlowOpensSubmitsShowsAllAndCloses() = runTest {
+        val model = model()
+        val today = LocalDate.now().toString()
+        model.submitSearch()
+        assertNull(model.searchQuery.value)
+        model.openSearch()
+        assertTrue(model.searchOpen.value)
+        model.pickSearchDate(today)
+        assertEquals(today, model.searchDate.value)
+        model.submitSearch()
+        assertEquals(today, model.searchQuery.value)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.searchResults.collect() }
+        runCurrent()
+        assertEquals(listOf(dao.entry.value), model.searchResults.value)
+        model.showAllRecords()
+        assertFalse(model.searchOpen.value)
+        assertNull(model.searchDate.value)
+        assertNull(model.searchQuery.value)
+        assertEquals("records", model.tab.value)
+        assertNull(model.filter.value)
+    }
+    @Test fun dashboardViewDateSwitchesTotalsAndRestoresAcrossRecreation() = runTest {
+        val yesterday = LocalDate.now().minusDays(1).toString()
+        val model = model()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.totals.collect() }
+        runCurrent()
+        assertEquals(LocalDate.now().toString(), model.totals.value.date)
+        model.viewDate(yesterday)
+        runCurrent()
+        assertEquals(yesterday, model.totals.value.date)
+        assertEquals(yesterday, model.viewDate.value)
+        val restoredHandle = SavedStateHandle(mapOf("viewDate" to yesterday))
+        val restored = HealthViewModel(HealthRepository(dao), restoredHandle).also { store.put("restored-${counter++}", it) }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { restored.totals.collect() }
+        runCurrent()
+        assertEquals(yesterday, restored.viewDate.value)
+        assertEquals(yesterday, restored.totals.value.date)
+        restored.clearViewDate()
+        runCurrent()
+        assertNull(restored.viewDate.value)
+        assertEquals(LocalDate.now().toString(), restored.totals.value.date)
+    }
     @Test fun insightsErrorRecoversWithRetry() = runTest {
         val model = model()
         dao.failBreakdown = true
