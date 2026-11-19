@@ -99,5 +99,12 @@ class ReportScreenshotsTest {
         compose.waitUntil(10_000) { !model.insights.value.loading }
         compose.waitForIdle()
         capture("10-insights")
+        compose.onNodeWithContentDescription("Search records").performClick()
+        compose.waitUntil(10_000) { model.searchOpen.value }
+        compose.runOnIdle { model.pickSearchDate(LocalDate.now().toString()) }
+        compose.onNodeWithTag("search-submit").performClick()
+        compose.waitUntil(10_000) { model.searchResults.value.isNotEmpty() }
+        compose.waitForIdle()
+        capture("11-search")
     }
 }

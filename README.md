@@ -8,7 +8,7 @@ Project contact: **Navod Daham (Navod)** — Kingston ID **K2635839**.
 
 - View today's activity totals and progress toward editable daily goals, with an overall goal ring, gradient metric cards and quick-add water buttons.
 - Review weekly and monthly trends, a goal streak and achievements on a dedicated Insights tab.
-- Add, edit and delete records, and filter history by date. A filtered history with no matches names the date and offers to clear the filter. Changed drafts prompt for confirmation before dismissal.
+- Add, edit and delete records, and filter history by date. A dedicated search screen finds records by date with edit and delete actions, and the dashboard can show any chosen day. A filtered history with no matches names the date and offers to clear the filter. Changed drafts prompt for confirmation before dismissal.
 - Load four optional sample records into an empty history for a demonstration.
 
 ## Architecture
