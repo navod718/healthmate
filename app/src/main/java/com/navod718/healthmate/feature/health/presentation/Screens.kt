@@ -73,8 +73,10 @@ fun DashboardScreen(
     onQuickAddWater: (Int) -> Unit = {},
     viewingDate: String? = null,
     onClearViewDate: () -> Unit = {},
+    onPickViewDate: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    var viewPickerOpen by rememberSaveable { mutableStateOf(false) }
     val allGoalsMet = state.totals.steps >= goals.steps && state.totals.calories >= goals.calories && state.totals.water >= goals.water
     val overall = ((goals.progress(state.totals.steps, goals.steps) + goals.progress(state.totals.calories, goals.calories) + goals.progress(state.totals.water, goals.water)) / 3f)
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -109,6 +111,13 @@ fun DashboardScreen(
             modifier = Modifier.testTag("view-date-chip"),
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(enabled = !state.loading, onClick = { viewPickerOpen = true }, modifier = Modifier.testTag("view-date-picker")) {
+                Icon(Icons.Default.CalendarMonth, null, Modifier.size(18.dp))
+                Text(" View another day")
+            }
+            Spacer(Modifier.weight(1f))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Default.WaterDrop, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
             Text("Log water", Modifier.weight(1f), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             listOf(250, 500, 1000).forEach { amount ->
@@ -139,6 +148,9 @@ fun DashboardScreen(
                     "ml", Icons.Default.WaterDrop, WaterGradient)
             }
         }
+    }
+    if (viewPickerOpen) {
+        RecordDatePicker(viewingDate ?: state.date, onDate = onPickViewDate, onDismiss = { viewPickerOpen = false })
     }
 }
 

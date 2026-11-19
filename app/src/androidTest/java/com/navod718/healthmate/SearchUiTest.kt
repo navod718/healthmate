@@ -2,6 +2,9 @@ package com.navod718.healthmate
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -80,5 +83,13 @@ class SearchUiTest {
         compose.onNodeWithTag("view-date-chip").performClick()
         compose.waitUntil(10_000) { model.viewDate.value == null && model.totals.value.date == LocalDate.now().toString() }
         compose.waitUntil(10_000) { compose.onAllNodesWithText("0 ml").fetchSemanticsNodes().isNotEmpty() }
+    }
+    @Test fun dashboardViewAnotherDayPickerSetsTheViewedDate() {
+        compose.setContent { HealthMateTheme { HealthMateApp(model) } }
+        compose.waitUntil(10_000) { !model.totals.value.loading }
+        compose.onNodeWithTag("view-date-picker").performScrollTo().performClick()
+        onView(withId(android.R.id.button1)).perform(click())
+        compose.waitUntil(10_000) { model.viewDate.value != null }
+        compose.onNodeWithTag("view-date-chip").performScrollTo().assertIsDisplayed()
     }
 }

@@ -188,7 +188,7 @@ fun HealthMateApp(model: HealthViewModel, revealBrand: Boolean = false) {
                         HealthScreen.Search -> SearchScreen(searchDate, searchQuery, searchResults, busy, model::pickSearchDate, model::submitSearch, model::showAllRecords, model::edit, model::requestDelete, page)
                         HealthScreen.Records -> RecordsScreen(records, busy, model::filterByDate, model::edit, model::requestDelete, model::openSamples, model::retry, page)
                         HealthScreen.Insights -> InsightsScreen(insights, goals.value, today, model::retry, page)
-                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, streak = insights.streak, onOpenInsights = { model.selectTab("insights") }, onQuickAddWater = model::quickAddWater, viewingDate = viewDate, onClearViewDate = model::clearViewDate, modifier = page)
+                        HealthScreen.Dashboard -> DashboardScreen(totals, model::retry, goals.value, goals.loadFailed, model::retryGoals, streak = insights.streak, onOpenInsights = { model.selectTab("insights") }, onQuickAddWater = model::quickAddWater, viewingDate = viewDate, onClearViewDate = model::clearViewDate, onPickViewDate = model::viewDate, modifier = page)
                     }
                 }
             }
